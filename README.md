@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TTS Application with Dhruva API
+
+A modern text-to-speech application built with Next.js, TypeScript, shadcn/ui, and the Dhruva TTS API.
+
+## Features
+
+- 🎙️ Convert text to speech using the Dhruva TTS API
+- 🌍 Support for multiple Indian languages (Hindi, Bengali, Tamil, Telugu, etc.)
+- 👥 Male and female voice options
+- 🎵 Built-in audio player with play/pause/stop controls
+- 📱 Responsive design with shadcn/ui components
+- ⚡ Fast API responses with Next.js API routes
+
+## Technologies Used
+
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **shadcn/ui** - Modern UI components
+- **Tailwind CSS** - Utility-first styling
+- **Lucide React** - Beautiful icons
+- **Dhruva TTS API** - AI-powered text-to-speech conversion
 
 ## Getting Started
 
-First, run the development server:
-
+1. **Install dependencies:**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Run the development server:**
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Open your browser:**
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Usage
 
-## Learn More
+1. Enter text in the textarea
+2. Select your preferred language
+3. Choose voice gender (male/female)
+4. Click "Generate Speech"
+5. Use the audio controls to play the generated speech
 
-To learn more about Next.js, take a look at the following resources:
+## API Integration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The application uses the Dhruva TTS API from Bhashini for speech generation. The API endpoint is integrated via Next.js API routes for secure server-side communication.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/
+│   ├── api/tts/          # TTS API route
+│   ├── globals.css       # Global styles
+│   ├── layout.tsx        # Root layout
+│   └── page.tsx          # Home page
+├── components/
+│   ├── ui/               # shadcn/ui components
+│   └── TTSInterface.tsx  # Main TTS component
+└── lib/
+    └── utils.ts          # Utility functions
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is open source and available under the MIT License.
