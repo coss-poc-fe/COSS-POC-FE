@@ -248,7 +248,7 @@ export default function VoiceQueryInterface() {
             </div>
             <div className="bg-gray-100 text-gray-800 rounded-2xl rounded-bl-md px-5 py-4">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-sm font-medium text-gray-600">AI Assistant</span>
+                <span className="text-sm font-medium text-gray-600">COSS AI </span>
                 {message.detectedLanguage && (
                   <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                     {message.detectedLanguage}
@@ -359,7 +359,7 @@ export default function VoiceQueryInterface() {
             <Bot className="h-7 w-7" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold">AI Assistant</h1>
+            <h1 className="text-xl font-semibold">COSS AI</h1>
             <p className="text-sm text-blue-100">Powered by multilingual AI pipeline</p>
           </div>
           <div className="ml-auto">
