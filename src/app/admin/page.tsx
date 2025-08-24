@@ -1,36 +1,44 @@
 'use client';
 
-import LatencyAdminTable, { LatencyData } from "@/components/LatencyAdminTable";
+import { useEffect, useState } from "react";
+import LatencyAdminTable from "@/components/LatencyAdminTable";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 
+export interface LatencyData {
+  customerName: string;
+  customerApp: string;
+  requestId: string;
+  langdetectionLatency: number;
+  nmtLatency: number;
+  llmLatency: number;
+  ttsLatency: number;
+  overallPipelineLatency: number;
+}
+
 export default function AdminPage() {
   const router = useRouter();
+  const [latencyData, setLatencyData] = useState<LatencyData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample data
-  const sampleData: LatencyData[] = [
-    {
-      requestId: "REQ001",
-      timestamp: "2025-08-24 10:30:00",
-      customerName: "John Doe",
-      langDetection: "120ms",
-      nmt: "250ms",
-      llm: "300ms",
-      tts: "150ms",
-      overallLatency: "820ms",
-    },
-    {
-      requestId: "REQ002",
-      timestamp: "2025-08-24 10:35:00",
-      customerName: "Jane Smith",
-      langDetection: "100ms",
-      nmt: "220ms",
-      llm: "280ms",
-      tts: "140ms",
-      overallLatency: "740ms",
-    },
-  ];
+  // Call API when component mounts
+  useEffect(() => {
+  async function fetchData() {
+    try {
+      const response = await fetch("/api/globalmetrices");
+      if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
+      const data: LatencyData[] = await response.json();
+      setLatencyData(data ?? []);
+    } catch (error) {
+      console.error("Error fetching data:", error instanceof Error ? error.message : error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  fetchData();
+}, []);
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
@@ -51,7 +59,11 @@ export default function AdminPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <LatencyAdminTable data={sampleData} />
+          {loading ? (
+            <p className="text-center text-gray-500">Loading...</p>
+          ) : (
+            <LatencyAdminTable data={latencyData} />
+          )}
         </CardContent>
       </Card>
     </div>

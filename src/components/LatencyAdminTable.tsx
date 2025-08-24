@@ -1,4 +1,3 @@
-// components/LatencyAdminTable.tsx
 'use client';
 
 import * as React from "react";
@@ -14,13 +13,13 @@ import {
 
 export interface LatencyData {
   requestId: string;
-  timestamp: string;
   customerName: string;
-  langDetection: string;
-  nmt: string;
-  llm: string;
-  tts: string;
-  overallLatency: string;
+  customerApp: string;
+  langdetectionLatency: number;
+  nmtLatency: number;
+  llmLatency: number;
+  ttsLatency: number;
+  overallPipelineLatency: number;
 }
 
 interface LatencyAdminTableProps {
@@ -35,7 +34,6 @@ export default function LatencyAdminTable({ data, caption }: LatencyAdminTablePr
       <TableHeader>
         <TableRow>
           <TableHead className="w-[140px]">Request ID</TableHead>
-          <TableHead>Timestamp</TableHead>
           <TableHead>Customer Name</TableHead>
           <TableHead>Lang Detection</TableHead>
           <TableHead>NMT</TableHead>
@@ -48,13 +46,12 @@ export default function LatencyAdminTable({ data, caption }: LatencyAdminTablePr
         {data.map((row) => (
           <TableRow key={row.requestId}>
             <TableCell className="font-medium">{row.requestId}</TableCell>
-            <TableCell>{row.timestamp}</TableCell>
             <TableCell>{row.customerName}</TableCell>
-            <TableCell>{row.langDetection}</TableCell>
-            <TableCell>{row.nmt}</TableCell>
-            <TableCell>{row.llm}</TableCell>
-            <TableCell>{row.tts}</TableCell>
-            <TableCell className="text-right">{row.overallLatency}</TableCell>
+            <TableCell>{row.langdetectionLatency}ms</TableCell>
+            <TableCell>{row.nmtLatency}ms</TableCell>
+            <TableCell>{row.llmLatency}ms</TableCell>
+            <TableCell>{row.ttsLatency}ms</TableCell>
+            <TableCell className="text-right">{row.overallPipelineLatency}ms</TableCell>
           </TableRow>
         ))}
       </TableBody>
