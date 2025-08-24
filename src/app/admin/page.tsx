@@ -1,10 +1,13 @@
-// app/admin/page.tsx
 'use client';
 
 import LatencyAdminTable, { LatencyData } from "@/components/LatencyAdminTable";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
+  const router = useRouter();
+
   // Sample data
   const sampleData: LatencyData[] = [
     {
@@ -32,10 +35,20 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
       <Card className="w-full max-w-6xl shadow-lg border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
+        <CardHeader className="flex justify-between items-center">
+          <CardTitle className="text-2xl font-bold text-center flex-1">
             Latency Details
           </CardTitle>
+          <div className="ml-auto">
+            <DropdownMenu
+              triggerLabel="Switch User"
+              items={[
+                { label: "Customer 1", onClick: () => router.push("/customer1") },
+                { label: "Customer 2", onClick: () => router.push("/customer2") },
+                { label: "Admin", onClick: () => router.push("/admin") },
+              ]}
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <LatencyAdminTable data={sampleData} />
