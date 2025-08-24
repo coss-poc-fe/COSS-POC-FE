@@ -15,7 +15,7 @@ export default function LandingPage() {
       icon: <User className="w-12 h-12 text-white" />,
       color: 'bg-indigo-100 hover:bg-indigo-200',
       iconBg: 'bg-indigo-300',
-      route: '/customer1'
+      route: '/customer/customer1'
     },
     {
       title: 'Customer 2',
@@ -23,7 +23,7 @@ export default function LandingPage() {
       icon: <Users className="w-12 h-12 text-white" />,
       color: 'bg-green-100 hover:bg-green-200',
       iconBg: 'bg-green-300',
-      route: '/customer2'
+      route: '/customer/customer2'
     },
     {
       title: 'Admin',
