@@ -1,167 +1,160 @@
 'use client';
 
+
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Play, Pause, Square, Loader2, Send, Bot, User } from 'lucide-react';
 
+
 interface TextQueryResponse {
-  success: boolean;
-  response_text: string;
-  audio_content: string;
-  detected_language: string;
-  processing_time: {
-    [key: string]: number;
-  };
-  error?: string;
+success: boolean;
+response_text: string;
+audio_content: string;
+detected_language: string;
+processing_time: {
+[key: string]: number;
+};
+error?: string;
 }
+
 
 interface ChatMessage {
-  id: string;
-  type: 'user' | 'ai' | 'audio' | 'metrics';
-  content: string;
-  timestamp: Date;
-  audioUrl?: string;
-  detectedLanguage?: string;
-  processingTime?: { [key: string]: number };
+id: string;
+type: 'user' | 'ai' | 'audio' | 'metrics';
+content: string;
+timestamp: Date;
+audioUrl?: string;
+detectedLanguage?: string;
+processingTime?: { [key: string]: number };
 }
 
-export default function VoiceQueryInterface() {
-  const [queryText, setQueryText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: 'Hello! I\'m your AI assistant. Ask me anything and I\'ll provide both text and audio responses.',
-      timestamp: new Date(),
-    }
-  ]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+export default function VoiceQueryInterface({ customerType = 'customer1' }) {
+const [queryText, setQueryText] = useState('');
+const [isLoading, setIsLoading] = useState(false);
+const [messages, setMessages] = useState<ChatMessage[]>([
+{
+id: '1',
+type: 'ai',
+content: 'Hello! I\'m your AI assistant. Ask me anything and I\'ll provide both text and audio responses.',
+timestamp: new Date(),
+}
+]);
+const [isPlaying, setIsPlaying] = useState(false);
+const [error, setError] = useState<string | null>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+
+const audioRef = useRef<HTMLAudioElement | null>(null);
+const messagesEndRef = useRef<HTMLDivElement>(null);
+
+
+const scrollToBottom = () => {
+messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+};
 
   const handleProcessTextQuery = async () => {
-    if (!queryText.trim()) {
-      setError('Please enter a text query');
-      return;
-    }
+if (!queryText.trim()) {
+setError('Please enter a text query');
+return;
+}
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: queryText.trim(),
-      timestamp: new Date(),
-    };
 
-    setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
-    setError(null);
+const userMessage: ChatMessage = {
+id: Date.now().toString(),
+type: 'user',
+content: queryText.trim(),
+timestamp: new Date(),
+};
+
+
+setMessages(prev => [...prev, userMessage]);
+setIsLoading(true);
+setError(null);
 
     try {
-      const response = await fetch('https://coss-poc-be.vercel.app/process-text-query', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'accept': 'application/json',
-        },
-        body: JSON.stringify({
-          text: queryText.trim(),
-        }),
-      });
+const response = await fetch('https://coss-poc-be.vercel.app/process-text-query', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'accept': 'application/json',
+},
+body: JSON.stringify({ text: queryText.trim() }),
+});
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
-      const data: TextQueryResponse = await response.json();
+if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to process text query');
-      }
 
-      // Add AI response message
-      const aiMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: data.response_text,
-        timestamp: new Date(),
-        detectedLanguage: data.detected_language,
-      };
+const data: TextQueryResponse = await response.json();
+if (!data.success) throw new Error(data.error || 'Failed to process text query');
 
-      setMessages(prev => [...prev, aiMessage]);
 
-      // Convert base64 audio to playable URL and add audio message
-      if (data.audio_content) {
-        try {
-          const audioData = atob(data.audio_content);
-          const arrayBuffer = new ArrayBuffer(audioData.length);
-          const uint8Array = new Uint8Array(arrayBuffer);
-          
-          for (let i = 0; i < audioData.length; i++) {
-            uint8Array[i] = audioData.charCodeAt(i);
-          }
+const aiMessage: ChatMessage = {
+id: (Date.now() + 1).toString(),
+type: 'ai',
+content: data.response_text,
+timestamp: new Date(),
+detectedLanguage: data.detected_language,
+};
+setMessages(prev => [...prev, aiMessage]);
 
-          const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
-          const url = URL.createObjectURL(blob);
-          
-          const audioMessage: ChatMessage = {
-            id: (Date.now() + 2).toString(),
-            type: 'audio',
-            content: 'Audio Response',
-            timestamp: new Date(),
-            audioUrl: url,
-          };
+      if (customerType === 'customer1' && data.audio_content) {
+try {
+const audioData = atob(data.audio_content);
+const arrayBuffer = new ArrayBuffer(audioData.length);
+const uint8Array = new Uint8Array(arrayBuffer);
+for (let i = 0; i < audioData.length; i++) {
+uint8Array[i] = audioData.charCodeAt(i);
+}
+const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
+const url = URL.createObjectURL(blob);
+const audioMessage: ChatMessage = {
+id: (Date.now() + 2).toString(),
+type: 'audio',
+content: 'Audio Response',
+timestamp: new Date(),
+audioUrl: url,
+};
+setMessages(prev => [...prev, audioMessage]);
+} catch (audioError) {
+console.error('Error processing audio:', audioError);
+setError('Failed to process response audio');
+}
+}
+ 
+const metricsMessage: ChatMessage = {
+id: (Date.now() + 3).toString(),
+type: 'metrics',
+content: 'Processing Performance',
+timestamp: new Date(),
+processingTime: data.processing_time,
+};
+setMessages(prev => [...prev, metricsMessage]);
 
-          setMessages(prev => [...prev, audioMessage]);
-        } catch (audioError) {
-          console.error('Error processing audio:', audioError);
-          setError('Failed to process response audio');
-        }
-      }
 
-      // Add processing metrics message
-      const metricsMessage: ChatMessage = {
-        id: (Date.now() + 3).toString(),
-        type: 'metrics',
-        content: 'Processing Performance',
-        timestamp: new Date(),
-        processingTime: data.processing_time,
-      };
-
-      setMessages(prev => [...prev, metricsMessage]);
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+} catch (err) {
+setError(err instanceof Error ? err.message : 'An unknown error occurred');
+const errorMessage: ChatMessage = {
+id: (Date.now() + 1).toString(),
+type: 'ai',
+content: `Sorry, I encountered an error: ${err instanceof Error ? err.message : 'Unknown error'}`,
+timestamp: new Date(),
+};
+setMessages(prev => [...prev, errorMessage]);
+} finally {
+setIsLoading(false);
+setQueryText('');
+setTimeout(scrollToBottom, 100);
+}
+};
       
-      // Add error message to chat
-      const errorMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: `Sorry, I encountered an error: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        timestamp: new Date(),
-      };
-
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-      setQueryText('');
-      setTimeout(scrollToBottom, 100);
-    }
-  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleProcessTextQuery();
-    }
-  };
+if (e.key === 'Enter' && !e.shiftKey) {
+e.preventDefault();
+handleProcessTextQuery();
+}
+};
 
   const formatProcessingTime = (timeData: { [key: string]: number }) => {
     // Create a mapping for better display labels
@@ -219,6 +212,7 @@ export default function VoiceQueryInterface() {
   };
 
   const renderMessage = (message: ChatMessage) => {
+    if (message.type === 'audio' && customerType !== 'customer1') return null;
     const formatTime = (date: Date) => {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };

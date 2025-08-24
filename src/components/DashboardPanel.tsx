@@ -1,0 +1,118 @@
+'use client';
+
+import { useState } from 'react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+const sampleData = [
+  {
+    requestId: 'REQ001',
+    timestamp: '10:00 AM',
+    nmt: 0.120,
+    llm: 1.250,
+    tts: 0.450,
+    total: 1.820
+  },
+  {
+    requestId: 'REQ002',
+    timestamp: '10:05 AM',
+    nmt: 0.150,
+    llm: 1.100,
+    tts: 0.400,
+    total: 1.650
+  },
+  {
+    requestId: 'REQ003',
+    timestamp: '10:10 AM',
+    nmt: 0.130,
+    llm: 1.300,
+    tts: 0.480,
+    total: 1.910
+  }
+];
+
+export default function CustomerLatencyDashboard({ customerType = 'customer1' }) {
+  // Filter data according to customer type
+  const filteredData = sampleData.map((row) => {
+    if (customerType === 'customer2') {
+      return { ...row, tts: undefined, total: row.nmt + row.llm };
+    }
+    return row;
+  });
+
+  return (
+    <div className="h-full flex flex-col gap-6">
+      {/* Dashboard Heading */}
+      <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold">📊 Dashboard</CardTitle>
+        </CardHeader>
+      </Card>
+
+      {/* Latency Table */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg text-gray-800">Latency Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Request ID</TableHead>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>NMT Latency (s)</TableHead>
+                <TableHead>LLM Latency (s)</TableHead>
+                {customerType === 'customer1' && <TableHead>TTS Latency (s)</TableHead>}
+                <TableHead>Total Response (s)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredData.map((row) => (
+                <TableRow key={row.requestId}>
+                  <TableCell>{row.requestId}</TableCell>
+                  <TableCell>{row.timestamp}</TableCell>
+                  <TableCell>{row.nmt.toFixed(3)}</TableCell>
+                  <TableCell>{row.llm.toFixed(3)}</TableCell>
+                  {customerType === 'customer1' && <TableCell>{row.tts?.toFixed(3)}</TableCell>}
+                  <TableCell>{row.total.toFixed(3)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Bar Chart */}
+      <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-lg text-gray-800">Latency Visualization</CardTitle>
+        </CardHeader>
+        <CardContent className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <XAxis dataKey="requestId" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="nmt" stackId="a" fill="#8884d8" />
+              <Bar dataKey="llm" stackId="a" fill="#82ca9d" />
+              {customerType === 'customer1' && <Bar dataKey="tts" stackId="a" fill="#ffc658" />}
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
