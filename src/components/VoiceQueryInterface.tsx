@@ -195,7 +195,7 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
       return (
         <div
           key={key}
-          className={`rounded-lg p-4 border-2 transition-all ${
+          className={`rounded-lg p-2 border-1 transition-all ${
             isTotal
               ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white border-blue-400 shadow-lg"
               : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-md"
@@ -234,8 +234,8 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
     if (message.type === "user") {
       return (
         <div key={message.id} className="flex justify-end mb-6">
-          <div className="flex items-end gap-3 max-w-[75%]">
-            <div className="bg-blue-500 text-white rounded-2xl rounded-br-md px-5 py-4">
+          <div className="flex items-end gap-3 max-w-[100%]">
+            <div className="bg-blue-500 text-white rounded-2xl rounded-br-md px-5 py-2">
               <p className="leading-relaxed text-base">{message.content}</p>
               <p className="text-xs text-blue-100 mt-2">
                 {formatTime(message.timestamp)}
@@ -350,34 +350,34 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
       );
     }
 
-    if (message.type === "metrics" && message.processingTime) {
-      return (
-        <div key={message.id} className="flex justify-center mb-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl px-6 py-4 max-w-full">
-            <div className="flex items-center gap-3 mb-4 justify-center">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-base font-medium text-gray-600">
-                Processing Performance
-              </span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {formatProcessingTime(message.processingTime)}
-            </div>
-            <p className="text-xs text-gray-500 mt-3 text-center">
-              {formatTime(message.timestamp)}
-            </p>
-          </div>
-        </div>
-      );
-    }
+  //   if (message.type === "metrics" && message.processingTime) {
+  //     return (
+  //       <div key={message.id} className="flex justify-center mb-6">
+  //         <div className="bg-blue-50 border border-blue-200 rounded-2xl px-6 py-4 max-w-full">
+  //           <div className="flex items-center gap-3 mb-4 justify-center">
+  //             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+  //             <span className="text-base font-medium text-gray-600">
+  //               Processing Performance
+  //             </span>
+  //           </div>
+  //           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  //             {formatProcessingTime(message.processingTime)}
+  //           </div>
+  //           <p className="text-xs text-gray-500 mt-3 text-center">
+  //             {formatTime(message.timestamp)}
+  //           </p>
+  //         </div>
+  //       </div>
+  //     );
+  //   }
 
     return null;
   };
 
   return (
-    <div className="flex flex-col h-[800px] w-full max-w-6xl mx-auto border rounded-lg bg-white shadow-2xl">
+    <div className="flex flex-col h-[950px] w-full max-w-7xl mx-auto border rounded-lg bg-white shadow-1xl">
       {/* Chat Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-t-lg">
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
             <Bot className="h-7 w-7" />
@@ -394,7 +394,6 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
         </div>
       </div>
 
-      {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-1 bg-gray-50">
         {messages.map(renderMessage)}
 
