@@ -17,6 +17,18 @@ export interface LatencyData {
   overallPipelineLatency: number;
 }
 
+// Define API response type so we avoid using `any`
+interface ApiResponseItem {
+  customername: string;
+  customerapp: string;
+  requestid: string;
+  langdetectionlatency: number;
+  nmtlatency: number;
+  llmlatency: number;
+  ttslatency: number;
+  overallpipelinelatency: number;
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [latencyData, setLatencyData] = useState<LatencyData[]>([]);
@@ -29,8 +41,10 @@ export default function AdminPage() {
         const response = await fetch("/api/globalmetrices");
         if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
 
-        const rawData = await response.json();
-        const formattedData: LatencyData[] = rawData.map((item: any) => ({
+        const rawData: ApiResponseItem[] = await response.json();
+
+        // Map backend response to frontend format
+        const formattedData: LatencyData[] = rawData.map((item) => ({
           customerName: item.customername,
           customerApp: item.customerapp,
           requestId: item.requestid,

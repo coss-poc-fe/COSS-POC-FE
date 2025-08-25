@@ -1,21 +1,6 @@
-export interface CustomerLatency {
-  requestid: string;
-  customername: string;
-  customerapp: string;
-  langdetectionlatency: string;
-  nmtlatency: string;
-  llmlatency: string;
-  ttslatency?: string; // Optional for cust2
-  overallpipelinelatency: string;
-  timestamp: string;
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  // Example static response for now
+  return NextResponse.json({ message: 'Userspecific metrics endpoint' });
 }
- 
- 
-export const fetchCustomerLatency = async (customerType: string): Promise<CustomerLatency[]> => {
-  const url = `/api/customers/${customerType}`; // no "proxy"
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Failed to fetch');
-  return response.json();
-};
- 
- 

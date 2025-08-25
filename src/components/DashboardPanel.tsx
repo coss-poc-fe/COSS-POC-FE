@@ -1,11 +1,12 @@
 'use client';
- 
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { fetchCustomerLatency, CustomerLatency } from '@/app/api/userspecificmetrices/route';
- 
+import { CustomerLatency,fetchCustomerLatency } from '@/lib/fetchCustomerLatency';
+
+
 interface ProcessedData {
   requestId: string;
   nmt: number;
@@ -13,38 +14,42 @@ interface ProcessedData {
   tts?: number;
   total: number;
 }
- 
+
 interface CustomerLatencyDashboardProps {
   customerType: 'cust1' | 'cust2';
 }
- 
+
 export default function CustomerLatencyDashboard({ customerType }: CustomerLatencyDashboardProps) {
   const [data, setData] = useState<ProcessedData[]>([]);
   const [loading, setLoading] = useState(true);
   const [useSample, setUseSample] = useState(false);
- 
-  const sampleData: ProcessedData[] = [
-    { requestId: 'REQ001', nmt: 0.12, llm: 1.25, tts: 0.45, total: 1.82 },
-    { requestId: 'REQ002', nmt: 0.15, llm: 1.1, tts: 0.4, total: 1.65 },
-    { requestId: 'REQ003', nmt: 0.13, llm: 1.3, tts: 0.48, total: 1.91 },
-  ];
- 
+
+  // ✅ useMemo so we don't trigger ESLint warning in useEffect dependencies
+  const sampleData: ProcessedData[] = useMemo(
+    () => [
+      { requestId: 'REQ001', nmt: 0.12, llm: 1.25, tts: 0.45, total: 1.82 },
+      { requestId: 'REQ002', nmt: 0.15, llm: 1.1, tts: 0.4, total: 1.65 },
+      { requestId: 'REQ003', nmt: 0.13, llm: 1.3, tts: 0.48, total: 1.91 },
+    ],
+    []
+  );
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
         const apiData: CustomerLatency[] = await fetchCustomerLatency(customerType);
- 
+
         if (!apiData || apiData.length === 0) throw new Error('No data returned');
- 
-        const processed: ProcessedData[] = apiData.map(row => ({
+
+        const processed: ProcessedData[] = apiData.map((row) => ({
           requestId: row.requestid.slice(0, 8),
           nmt: parseFloat(row.nmtlatency.replace('ms', '')) / 1000,
           llm: parseFloat(row.llmlatency.replace('ms', '')) / 1000,
           tts: row.ttslatency ? parseFloat(row.ttslatency.replace('ms', '')) / 1000 : undefined,
           total: parseFloat(row.overallpipelinelatency.replace('ms', '')) / 1000,
         }));
- 
+
         setData(processed);
         setUseSample(false);
       } catch (err) {
@@ -55,15 +60,20 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
         setLoading(false);
       }
     };
- 
+
     loadData();
-  }, [customerType]);
- 
-  const filteredData = data.map(row => {
-    if (customerType === 'cust2') return { ...row, tts: undefined, total: row.nmt + row.llm };
-    return row;
-  });
- 
+  }, [customerType, sampleData]); // ✅ sampleData added to dependencies
+
+  const filteredData = useMemo(
+    () =>
+      data.map((row) => {
+        if (customerType === 'cust2')
+          return { ...row, tts: undefined, total: row.nmt + row.llm };
+        return row;
+      }),
+    [data, customerType]
+  );
+
   return (
     <div className="h-full flex flex-col gap-3 mt-1">
       {/* Status */}
@@ -73,7 +83,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
           <span>Records: {filteredData.length}</span>
         </div>
       </Card>
- 
+
       {/* Table */}
       <Card className="h-[440px] bg-white border-none rounded-none">
         <CardHeader>
@@ -106,7 +116,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
           </Table>
         </CardContent>
       </Card>
- 
+
       {/* Chart */}
       <Card className="h-[440px] bg-white border-none rounded-none">
         <CardHeader>
@@ -130,5 +140,3 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
     </div>
   );
 }
- 
- 
