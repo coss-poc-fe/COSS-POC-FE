@@ -47,11 +47,11 @@ export default function LatencyAdminTable({ data, caption }: LatencyAdminTablePr
           <TableRow key={row.requestId}>
             <TableCell className="font-medium">{row.requestId}</TableCell>
             <TableCell>{row.customerName}</TableCell>
-            <TableCell>{row.langdetectionLatency}ms</TableCell>
-            <TableCell>{row.nmtLatency}ms</TableCell>
-            <TableCell>{row.llmLatency}ms</TableCell>
-            <TableCell>{row.ttsLatency}ms</TableCell>
-            <TableCell className="text-right">{row.overallPipelineLatency}ms</TableCell>
+            <TableCell>{row.langdetectionLatency}</TableCell>
+            <TableCell>{row.nmtLatency}</TableCell>
+            <TableCell>{row.llmLatency}</TableCell>
+            <TableCell>{row.ttsLatency}</TableCell>
+            <TableCell className="text-right">{row.overallPipelineLatency}</TableCell>
           </TableRow>
         ))}
       </TableBody>

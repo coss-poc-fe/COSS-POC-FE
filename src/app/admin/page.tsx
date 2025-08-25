@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import LatencyAdminTable from "@/components/LatencyAdminTable";
+import CustomerAggregateTable, { AggregateData } from "@/components/CustomerAggregateTable";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,6 @@ export interface LatencyData {
   overallPipelineLatency: number;
 }
 
-// Define API response type so we avoid using `any`
 interface ApiResponseItem {
   customername: string;
   customerapp: string;
@@ -29,21 +29,51 @@ interface ApiResponseItem {
   overallpipelinelatency: number;
 }
 
+interface CustomerAggregateResponse {
+  aggregates: AggregateData[];
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [latencyData, setLatencyData] = useState<LatencyData[]>([]);
+  const [aggregateData, setAggregateData] = useState<AggregateData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingAggregate, setLoadingAggregate] = useState(true);
 
-  // Fetch and format API data
+  const mockAggregateData: AggregateData[] = [
+    {
+      customerName: "AcmeCorp",
+      customerApp: "mobile",
+      langdetectionLatency: 123.45,
+      nmtLatency: 456.78,
+      llmLatency: 234.56,
+      ttsLatency: 345.67,
+      overallPipelineLatency: 789.12,
+      nmtUsage: 12.34,
+      llmUsage: 23.45,
+      ttsUsage: 34.56,
+    },
+    {
+      customerName: "AcmeCorp",
+      customerApp: "web",
+      langdetectionLatency: 111.11,
+      nmtLatency: 222.22,
+      llmLatency: 333.33,
+      ttsLatency: 444.44,
+      overallPipelineLatency: 555.55,
+      nmtUsage: 10.0,
+      llmUsage: 20.0,
+      ttsUsage: 30.0,
+    },
+  ];
+
+  // Fetch latency data
   useEffect(() => {
     async function fetchData() {
       try {
         const response = await fetch("/api/globalmetrices");
         if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
-
         const rawData: ApiResponseItem[] = await response.json();
-
-        // Map backend response to frontend format
         const formattedData: LatencyData[] = rawData.map((item) => ({
           customerName: item.customername,
           customerApp: item.customerapp,
@@ -54,16 +84,32 @@ export default function AdminPage() {
           ttsLatency: item.ttslatency,
           overallPipelineLatency: item.overallpipelinelatency,
         }));
-
         setLatencyData(formattedData);
       } catch (error) {
-        console.error("Error fetching data:", error instanceof Error ? error.message : error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
     }
-
     fetchData();
+  }, []);
+
+  // Fetch aggregate data
+  useEffect(() => {
+    async function fetchAggregate() {
+      try {
+        const response = await fetch("/api/customer-aggregate");
+        if (!response.ok) throw new Error(`Failed to fetch aggregate: ${response.status}`);
+        const data: CustomerAggregateResponse = await response.json();
+        setAggregateData(data.aggregates);
+      } catch (error) {
+        console.error(error);
+        setAggregateData(mockAggregateData); // fallback
+      } finally {
+        setLoadingAggregate(false);
+      }
+    }
+    fetchAggregate();
   }, []);
 
   return (
@@ -81,17 +127,29 @@ export default function AdminPage() {
         />
       </div>
 
-      {/* Table Section Only */}
-      <div className="h-[80vh]">
+      {/* Latency Table */}
+      <div className="h-[40vh] mb-6">
         <Card className="h-full w-full border border-gray-200">
           <CardHeader>
             <CardTitle className="text-xl font-semibold">Latency Details</CardTitle>
           </CardHeader>
           <CardContent className="h-full overflow-auto p-4">
-            {loading ? (
-              <p className="text-center text-gray-500">Loading...</p>
+            {loading ? <p className="text-center text-gray-500">Loading...</p> : <LatencyAdminTable data={latencyData} />}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Aggregate Table */}
+      <div className="h-[40vh]">
+        <Card className="h-full w-full border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold">Customer Aggregate Metrics</CardTitle>
+          </CardHeader>
+          <CardContent className="h-full overflow-auto p-4">
+            {loadingAggregate ? (
+              <p className="text-center text-gray-500">Loading aggregate metrics...</p>
             ) : (
-              <LatencyAdminTable data={latencyData} />
+              <CustomerAggregateTable aggregates={aggregateData} />
             )}
           </CardContent>
         </Card>
