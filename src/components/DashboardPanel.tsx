@@ -77,7 +77,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
   return (
     <div className="h-full flex flex-col gap-3 mt-1">
       {/* Status */}
-      <Card className="bg-blue-50 border-blue-200 p-2">
+      <Card className="bg-grey-200 border-grey-200 p-2">
         <div className="flex justify-between items-center text-sm">
           <span>Data Source: {loading ? 'Loading...' : useSample ? 'Sample Data' : 'API Data'}</span>
           <span>Records: {filteredData.length}</span>
