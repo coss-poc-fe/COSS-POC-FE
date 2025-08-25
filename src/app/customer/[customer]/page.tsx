@@ -1,18 +1,19 @@
 'use client';
-
+ 
 import VoiceQueryInterface from '@/components/VoiceQueryInterface';
 import DashboardPanel from '@/components/DashboardPanel';
 import { useParams, useRouter } from 'next/navigation';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
-
+ 
 export default function CustomerPage() {
-  const { customer } = useParams(); // 'customer1' or 'customer2'
-  const customerType = customer as 'customer1' | 'customer2';
+  const { customer } = useParams();
+  const param = customer as 'customer1' | 'customer2';
+  const customerType = param === 'customer1' ? 'cust1' : 'cust2';
+ 
   const router = useRouter();
-
+ 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col p-2 gap-4">
-      {/* Header with Dropdown */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">CUSTOMER DASHBOARD</h1>
         <DropdownMenu
@@ -24,13 +25,12 @@ export default function CustomerPage() {
           ]}
         />
       </div>
-
-      {/* Main layout */}
+ 
       <div className="flex flex-1 gap-2">
         <div className="w-[650px]">
           <DashboardPanel customerType={customerType} />
         </div>
-
+ 
         <div className="flex-1">
           <VoiceQueryInterface customerType={customerType} />
         </div>
@@ -38,3 +38,5 @@ export default function CustomerPage() {
     </main>
   );
 }
+ 
+ 

@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
-
+ 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',                  // Frontend route
+        destination: 'https://coss-ai4x.vercel.app/:path*', // Proxy to external API
+      },
+    ];
+  },
 };
-
+ 
 export default nextConfig;

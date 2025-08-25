@@ -57,16 +57,17 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerName: "cust1",
+          customerName: customerType,  // ✅ now dynamic
           customerAppName: "FleetAnalyticsApp",
           input: { text: queryText.trim(), language: "en" },
         }),
+
       });
 
       if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
       const data: PipelineApiResponse = await response.json();
 
-      if (customerType === "customer1" && data.pipelineOutput.TTS) {
+      if (customerType === "cust1" && data.pipelineOutput.TTS) {
         // AUDIO response for cust1
         const binary = atob(data.pipelineOutput.TTS);
         const arrayBuffer = new Uint8Array(binary.length);
@@ -85,7 +86,7 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
         };
         setMessages((prev) => [...prev, audioMessage]);
 
-      } else if (customerType === "customer2" && data.pipelineOutput.LLM) {
+      } else if (customerType === "cust2" && data.pipelineOutput.LLM) {
         // TEXT response for cust2
         const aiMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -205,7 +206,7 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
   };
 
   return (
-    <div className="flex flex-col h-[900px] w-full max-w-7xl mx-auto border rounded-lg bg-white shadow-1xl">
+    <div className="flex flex-col h-[950px] w-full max-w-7xl mx-auto border rounded-lg bg-white shadow-1xl">
       {/* Chat Header */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
