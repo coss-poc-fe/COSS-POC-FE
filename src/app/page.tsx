@@ -26,7 +26,7 @@ export default function LandingPage() {
       route: '/customer/customer2'
     },
     {
-      title: 'Admin',
+      title: 'Adopter Admin',
       description: 'View dashboard and analytics',
       icon: <Settings className="w-12 h-12 text-white" />,
       color: 'bg-yellow-100 hover:bg-yellow-200',
