@@ -127,14 +127,24 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
         <CardContent className="h-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <XAxis dataKey="requestId" angle={-45} textAnchor="end" height={60} interval={0} />
+              {/* X-axis with label */}
+              <XAxis
+                dataKey="requestId"
+                label={{ value: 'Request ID', position: 'insideBottom', offset: -5 }}
+                tick={false} // hides individual request IDs
+              />
+              {/* Y-axis with label */}
               <YAxis label={{ value: 'Latency (s)', angle: -90, position: 'insideLeft' }} />
+              {/* Tooltip remains */}
               <Tooltip formatter={(value: number) => `${value.toFixed(3)}s`} />
+              
+              {/* Bars */}
               <Bar dataKey="nmt" stackId="a" fill="#8884d8" />
               <Bar dataKey="llm" stackId="a" fill="#82ca9d" />
               {customerType === 'cust1' && <Bar dataKey="tts" stackId="a" fill="#ffc658" />}
             </BarChart>
           </ResponsiveContainer>
+
         </CardContent>
       </Card>
     </div>
