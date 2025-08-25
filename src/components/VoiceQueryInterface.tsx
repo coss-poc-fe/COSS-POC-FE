@@ -148,62 +148,62 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
     }
 
     if (mounted && message.type === "audio" && message.audioUrl) {
-      return (
-        <div key={message.id} className="flex justify-start mb-6">
-          <div className="flex items-end gap-3 max-w-[75%]">
-            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-              <Play className="h-5 w-5 text-white" />
-            </div>
-            <div className="bg-grey-50 w-100 border border-slate-200 rounded-2xl px-5 py-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (audioRef.current) {
-                    if (isPlaying) {
-                      audioRef.current.pause();
-                      setIsPlaying(false);
-                    } else {
-                      audioRef.current.src = message.audioUrl!;
-                      audioRef.current.play();
-                      setIsPlaying(true);
-                    }
-                  }
-                }}
-                className="flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-100"
-              >
-                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                {isPlaying ? "Pause" : "Play"}
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (audioRef.current) {
-                    audioRef.current.pause();
-                    audioRef.current.currentTime = 0;
-                    setIsPlaying(false);
-                  }
-                }}
-                className="flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-100 mt-2"
-              >
-                <Square className="h-4 w-4" />
-                Stop
-              </Button>
-
-              <audio ref={audioRef} onEnded={() => setIsPlaying(false)} controls className="mt-2 w-full" />
-              {mounted && (
-                <p className="text-xs text-slate-500 mt-3">{formatTime(message.timestamp)}</p>
-              )}
-            </div>
-          </div>
+  return (
+    <div key={message.id} className="flex justify-start mb-6">
+      <div className="flex items-end gap-3 max-w-[75%]">
+        <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
+          <Play className="h-5 w-5 text-white" />
         </div>
-      );
-    }
+        <div className="bg-gray-50 w-100 border border-slate-200 rounded-2xl px-5 py-4">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (audioRef.current) {
+                  if (isPlaying) {
+                    audioRef.current.pause();
+                    setIsPlaying(false);
+                  } else {
+                    audioRef.current.src = message.audioUrl!;
+                    audioRef.current.play();
+                    setIsPlaying(true);
+                  }
+                }
+              }}
+              className="flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-100"
+            >
+              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {isPlaying ? "Pause" : "Play"}
+            </Button>
 
-    return null;
-  };
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (audioRef.current) {
+                  audioRef.current.pause();
+                  audioRef.current.currentTime = 0;
+                  setIsPlaying(false);
+                }
+              }}
+              className="flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-100"
+            >
+              <Square className="h-4 w-4" />
+              Stop
+            </Button>
+          </div>
+
+          <audio ref={audioRef} onEnded={() => setIsPlaying(false)} controls className="mt-2 w-full" />
+          {mounted && (
+            <p className="text-xs text-slate-500 mt-3">{formatTime(message.timestamp)}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+  }
 
   return (
     <div className="flex flex-col h-[880px] w-390   rounded-lg bg-white shadow-1xl">
