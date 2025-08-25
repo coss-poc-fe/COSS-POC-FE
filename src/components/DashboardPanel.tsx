@@ -87,9 +87,9 @@ export default function CustomerLatencyDashboard({ customerType = 'customer1' })
   });
 
   return (
-   <div className="h-full flex flex-col gap-6 mt-1">
+   <div className="h-full flex flex-col gap-3 mt-1">
   {/* Latency Data Table */}
-  <Card className="h-[460px] bg-white border-none rounded-none">
+  <Card className="h-[440px] bg-white border-none rounded-none">
     <CardHeader>
       <CardTitle className="text-lg text-gray-800">Latency Data</CardTitle>
     </CardHeader>
@@ -123,7 +123,7 @@ export default function CustomerLatencyDashboard({ customerType = 'customer1' })
   </Card>
 
   {/* Latency Visualization Chart */}
-  <Card className="h-[460px] bg-white border-none rounded-none">
+  <Card className="h-[440px] bg-white border-none rounded-none">
     <CardHeader>
       <CardTitle className="text-lg text-gray-800">Latency Visualization</CardTitle>
     </CardHeader>

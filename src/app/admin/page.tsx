@@ -49,9 +49,9 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen w-full bg-gray-50 p-6">
-      {/* Header */}
+      
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold">ADMIN DASHBOARD</h1>
         <DropdownMenu
           triggerLabel="Switch User"
           items={[
@@ -62,9 +62,9 @@ export default function AdminPage() {
         />
       </div>
 
-      {/* Content Grid (Table + Chart side by side) */}
+     
       <div className="grid grid-cols-2 gap-6 h-[80vh]">
-        {/* Table */}
+       
         <Card className="h-full w-full border border-gray-200">
            <CardHeader>
             <CardTitle className="text-xl font-semibold">Latency Details</CardTitle>
@@ -78,7 +78,7 @@ export default function AdminPage() {
           </CardContent>
         </Card>
 
-        {/* Chart */}
+        
         {!loading && latencyData.length > 0 && (
           <Card className="h-full w-full border border-gray-200">
             <CardHeader>

@@ -375,7 +375,7 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
   };
 
   return (
-    <div className="flex flex-col h-[950px] w-full max-w-7xl mx-auto border rounded-lg bg-white shadow-1xl">
+    <div className="flex flex-col h-[900px] w-full max-w-7xl mx-auto border rounded-lg bg-white shadow-1xl">
       {/* Chat Header */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6">
         <div className="flex items-center gap-4">
