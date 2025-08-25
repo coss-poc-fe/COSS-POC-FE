@@ -20,7 +20,6 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 const sampleData = [
   {
     requestId: 'REQ001',
-    timestamp: '10:00 AM',
     nmt: 0.120,
     llm: 1.250,
     tts: 0.450,
@@ -28,7 +27,6 @@ const sampleData = [
   },
   {
     requestId: 'REQ002',
-    timestamp: '10:05 AM',
     nmt: 0.150,
     llm: 1.100,
     tts: 0.400,
@@ -36,7 +34,6 @@ const sampleData = [
   },
   {
     requestId: 'REQ003',
-    timestamp: '10:10 AM',
     nmt: 0.130,
     llm: 1.300,
     tts: 0.480,
@@ -44,7 +41,6 @@ const sampleData = [
   },
   {
     requestId: 'REQ004',
-    timestamp: '11:00 AM',
     nmt: 0.120,
     llm: 1.250,
     tts: 0.450,
@@ -52,7 +48,6 @@ const sampleData = [
   },
   {
     requestId: 'REQ005',
-    timestamp: '12:05 AM',
     nmt: 0.150,
     llm: 1.100,
     tts: 0.400,
@@ -60,7 +55,6 @@ const sampleData = [
   },
   {
     requestId: 'REQ006',
-    timestamp: '09:10 AM',
     nmt: 0.130,
     llm: 1.300,
     tts: 0.480,
@@ -68,7 +62,6 @@ const sampleData = [
   },
   {
     requestId: 'REQ007',
-    timestamp: '09:16 AM',
     nmt: 0.130,
     llm: 1.300,
     tts: 0.480,
@@ -76,7 +69,7 @@ const sampleData = [
   },
   {
     requestId: 'REQ008',
-    timestamp: '11:20 AM',
+    
     nmt: 0.120,
     llm: 1.250,
     tts: 0.450,
@@ -105,7 +98,8 @@ export default function CustomerLatencyDashboard({ customerType = 'customer1' })
         <TableHeader>
           <TableRow>
             <TableHead>Request ID</TableHead>
-            <TableHead>Timestamp</TableHead>
+            
+            
             <TableHead>NMT Latency (s)</TableHead>
             <TableHead>LLM Latency (s)</TableHead>
             {customerType === 'customer1' && <TableHead>TTS Latency (s)</TableHead>}
@@ -116,7 +110,7 @@ export default function CustomerLatencyDashboard({ customerType = 'customer1' })
           {filteredData.map((row) => (
             <TableRow key={row.requestId}>
               <TableCell>{row.requestId}</TableCell>
-              <TableCell>{row.timestamp}</TableCell>
+             
               <TableCell>{row.nmt.toFixed(3)}</TableCell>
               <TableCell>{row.llm.toFixed(3)}</TableCell>
               {customerType === 'customer1' && <TableCell>{row.tts?.toFixed(3)}</TableCell>}

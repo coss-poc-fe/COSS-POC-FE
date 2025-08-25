@@ -350,26 +350,26 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
       );
     }
 
-  //   if (message.type === "metrics" && message.processingTime) {
-  //     return (
-  //       <div key={message.id} className="flex justify-center mb-6">
-  //         <div className="bg-blue-50 border border-blue-200 rounded-2xl px-6 py-4 max-w-full">
-  //           <div className="flex items-center gap-3 mb-4 justify-center">
-  //             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-  //             <span className="text-base font-medium text-gray-600">
-  //               Processing Performance
-  //             </span>
-  //           </div>
-  //           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-  //             {formatProcessingTime(message.processingTime)}
-  //           </div>
-  //           <p className="text-xs text-gray-500 mt-3 text-center">
-  //             {formatTime(message.timestamp)}
-  //           </p>
-  //         </div>
-  //       </div>
-  //     );
-  //   }
+    if (message.type === "metrics" && message.processingTime) {
+      return (
+        <div key={message.id} className="flex justify-center mb-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl px-6 py-4 max-w-full">
+            <div className="flex items-center gap-3 mb-4 justify-center">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-base font-medium text-gray-600">
+                Processing Performance
+              </span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {formatProcessingTime(message.processingTime)}
+            </div>
+            <p className="text-xs text-gray-500 mt-3 text-center">
+              {formatTime(message.timestamp)}
+            </p>
+          </div>
+        </div>
+      );
+    }
 
     return null;
   };
