@@ -1,13 +1,13 @@
 // app/page.tsx
 'use client';
-
+ 
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { User, Users, Settings } from 'lucide-react';
-
+ 
 export default function LandingPage() {
   const router = useRouter();
-
+ 
   const cards = [
     {
       title: 'Customer 1',
@@ -20,7 +20,7 @@ export default function LandingPage() {
     {
       title: 'Customer 2',
       description: 'Chat with AI assistant',
-      icon: <Users className="w-12 h-12 text-white" />,
+      icon: <User className="w-12 h-12 text-white" />,
       color: 'bg-green-100 hover:bg-green-200',
       iconBg: 'bg-green-300',
       route: '/customer/customer2'
@@ -34,7 +34,8 @@ export default function LandingPage() {
       route: '/admin'
     }
   ];
-
+ 
+ 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
       <Card className="w-full max-w-4xl p-8 shadow-lg border-gray-200">
@@ -74,3 +75,4 @@ export default function LandingPage() {
     </div>
   );
 }
+ 

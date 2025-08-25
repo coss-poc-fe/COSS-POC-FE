@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -25,49 +24,42 @@ export interface AggregateData {
 }
 
 interface CustomerAggregateProps {
-  aggregates?: AggregateData[]; // Optional
+  customerName: string; // we'll pass customerName dynamically
 }
 
-const mockData: AggregateData[] = [
-  {
-    customerName: "AcmeCorp",
-    customerApp: "mobile",
-    langdetectionLatency: 123.45,
-    nmtLatency: 456.78,
-    llmLatency: 234.56,
-    ttsLatency: 345.67,
-    overallPipelineLatency: 789.12,
-    nmtUsage: 12.34,
-    llmUsage: 23.45,
-    ttsUsage: 34.56,
-  },
-  {
-    customerName: "AcmeCorp",
-    customerApp: "web",
-    langdetectionLatency: 111.11,
-    nmtLatency: 222.22,
-    llmLatency: 333.33,
-    ttsLatency: 444.44,
-    overallPipelineLatency: 555.55,
-    nmtUsage: 10.0,
-    llmUsage: 20.0,
-    ttsUsage: 30.0,
-  },
-];
-
-const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({
-  aggregates = mockData,
-}) => {
+const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ customerName }) => {
   const [data, setData] = React.useState<AggregateData[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => setData(aggregates), 500);
-    return () => clearTimeout(timer);
-  }, [aggregates]);
+    const fetchAggregates = async () => {
+      try {
+        const res = await fetch("/api/customer_aggregates", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ customerName }),
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch data");
+
+        const result = await res.json();
+        setData(result.aggregates || []);
+      } catch (err) {
+        console.error("Error fetching aggregates:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAggregates();
+  }, [customerName]);
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <Table>
-      
       <TableHeader>
         <TableRow>
           <TableHead>Customer Name</TableHead>
@@ -85,7 +77,7 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({
       <TableBody>
         {data.map((row, idx) => (
           <TableRow key={idx}>
-            <TableCell>{row.customerName}</TableCell>
+            <TableCell>{customerName}</TableCell>
             <TableCell>{row.customerApp}</TableCell>
             <TableCell>{row.langdetectionLatency}ms</TableCell>
             <TableCell>{row.nmtLatency}ms</TableCell>

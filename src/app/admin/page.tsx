@@ -149,7 +149,7 @@ export default function AdminPage() {
             {loadingAggregate ? (
               <p className="text-center text-gray-500">Loading aggregate metrics...</p>
             ) : (
-              <CustomerAggregateTable aggregates={aggregateData} />
+              <CustomerAggregateTable customerName="AcmeCorp" />
             )}
           </CardContent>
         </Card>
