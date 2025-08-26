@@ -1,32 +1,21 @@
 'use client';
-
 import { useEffect, useState } from "react";
-import LatencyAdminTable from "@/components/LatencyAdminTable";
+import LatencyAdminTable, { LatencyData } from "@/components/LatencyAdminTable";
 import CustomerAggregateTable, { AggregateData } from "@/components/CustomerAggregateTable";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 
-export interface LatencyData {
-  customerName: string;
-  customerApp: string;
-  requestId: string;
-  langdetectionLatency: number;
-  nmtLatency: number;
-  llmLatency: number;
-  ttsLatency: number;
-  overallPipelineLatency: number;
-}
-
 interface ApiResponseItem {
   customername: string;
   customerapp: string;
   requestid: string;
-  langdetectionlatency: number;
-  nmtlatency: number;
-  llmlatency: number;
-  ttslatency: number;
-  overallpipelinelatency: number;
+  langdetectionlatency: string;
+  nmtlatency: string;
+  llmlatency: string;
+  ttslatency: string;
+  overallpipelinelatency: string;
+  timestamp: string;
 }
 
 interface CustomerAggregateResponse {
@@ -40,6 +29,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [loadingAggregate, setLoadingAggregate] = useState(true);
 
+  // Mock fallback data for aggregates
   const mockAggregateData: AggregateData[] = [
     {
       customerName: "AcmeCorp",
@@ -74,16 +64,20 @@ export default function AdminPage() {
         const response = await fetch("/api/globalmetrices");
         if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
         const rawData: ApiResponseItem[] = await response.json();
+
         const formattedData: LatencyData[] = rawData.map((item) => ({
           customerName: item.customername,
           customerApp: item.customerapp,
           requestId: item.requestid,
-          langdetectionLatency: item.langdetectionlatency,
-          nmtLatency: item.nmtlatency,
-          llmLatency: item.llmlatency,
-          ttsLatency: item.ttslatency,
-          overallPipelineLatency: item.overallpipelinelatency,
+          langdetectionLatency: parseFloat(item.langdetectionlatency || "0"),
+          nmtLatency: parseFloat(item.nmtlatency || "0"),
+          llmLatency: parseFloat(item.llmlatency || "0"),
+          ttsLatency: parseFloat(item.ttslatency || "0"),
+          overallPipelineLatency: parseFloat(item.overallpipelinelatency || "0"),
+          timestamp: item.timestamp,
         }));
+
+
         setLatencyData(formattedData);
       } catch (error) {
         console.error(error);
@@ -134,7 +128,11 @@ export default function AdminPage() {
             <CardTitle className="text-xl font-semibold">Latency Details</CardTitle>
           </CardHeader>
           <CardContent className="h-full overflow-auto p-4">
-            {loading ? <p className="text-center text-gray-500">Loading...</p> : <LatencyAdminTable data={latencyData} />}
+            {loading ? (
+              <p className="text-center text-gray-500">Loading...</p>
+            ) : (
+              <LatencyAdminTable data={latencyData} />
+            )}
           </CardContent>
         </Card>
       </div>
@@ -149,9 +147,10 @@ export default function AdminPage() {
             {loadingAggregate ? (
               <p className="text-center text-gray-500">Loading aggregate metrics...</p>
             ) : (
-              <CustomerAggregateTable customerName="AcmeCorp" />
+              <CustomerAggregateTable data={aggregateData} />
             )}
           </CardContent>
+
         </Card>
       </div>
     </div>

@@ -9,9 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
+// types.ts (recommended)
 export interface AggregateData {
-  customerName: string; 
+  customerName: string;
   customerApp: string;
   langdetectionLatency: number;
   nmtLatency: number;
@@ -24,73 +26,80 @@ export interface AggregateData {
 }
 
 interface CustomerAggregateProps {
-  customerName: string; // we'll pass customerName dynamically
+  data: AggregateData[]; // now we accept pre-fetched data
 }
 
-const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ customerName }) => {
-  const [data, setData] = React.useState<AggregateData[]>([]);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const fetchAggregates = async () => {
-      try {
-        const res = await fetch("/api/customer_aggregates", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ customerName }),
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch data");
-
-        const result = await res.json();
-        setData(result.aggregates || []);
-      } catch (err) {
-        console.error("Error fetching aggregates:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAggregates();
-  }, [customerName]);
-
-  if (loading) return <p>Loading...</p>;
+const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
+  if (!data || data.length === 0) return <p>No data available</p>;
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Customer Name</TableHead>
-          <TableHead>App</TableHead>
-          <TableHead>Lang Detection Latency</TableHead>
-          <TableHead>NMT Latency</TableHead>
-          <TableHead>LLM Latency</TableHead>
-          <TableHead>TTS Latency</TableHead>
-          <TableHead>Overall Latency</TableHead>
-          <TableHead>NMT Usage</TableHead>
-          <TableHead>LLM Usage</TableHead>
-          <TableHead>TTS Usage</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((row, idx) => (
-          <TableRow key={idx}>
-            <TableCell>{customerName}</TableCell>
-            <TableCell>{row.customerApp}</TableCell>
-            <TableCell>{row.langdetectionLatency}ms</TableCell>
-            <TableCell>{row.nmtLatency}ms</TableCell>
-            <TableCell>{row.llmLatency}ms</TableCell>
-            <TableCell>{row.ttsLatency}ms</TableCell>
-            <TableCell>{row.overallPipelineLatency}ms</TableCell>
-            <TableCell>{row.nmtUsage}</TableCell>
-            <TableCell>{row.llmUsage}</TableCell>
-            <TableCell>{row.ttsUsage}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Latency Table */}
+      <Card className="shadow-lg rounded-2xl">
+        <CardHeader>
+          <CardTitle>Latency Metrics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Customer Name</TableHead>
+                <TableHead>App</TableHead>
+                <TableHead>Lang Detection (s)</TableHead>
+                <TableHead>NMT (s)</TableHead>
+                <TableHead>LLM (s)</TableHead>
+                <TableHead>TTS (s)</TableHead>
+                <TableHead>Overall (s)</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((row, idx) => (
+                <TableRow key={`latency-${idx}`}>
+                  <TableCell>{row.customerName}</TableCell>
+                  <TableCell>{row.customerApp}</TableCell>
+                  <TableCell>{(row.langdetectionLatency / 1000).toFixed(2)}</TableCell>
+                  <TableCell>{(row.nmtLatency / 1000).toFixed(2)}</TableCell>
+                  <TableCell>{(row.llmLatency / 1000).toFixed(2)}</TableCell>
+                  <TableCell>{(row.ttsLatency / 1000).toFixed(2)}</TableCell>
+                  <TableCell>{(row.overallPipelineLatency / 1000).toFixed(2)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Usage Table */}
+      <Card className="shadow-lg rounded-2xl">
+        <CardHeader>
+          <CardTitle>Usage Metrics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Customer Name</TableHead>
+                <TableHead>App</TableHead>
+                <TableHead>NMT Usage</TableHead>
+                <TableHead>LLM Usage (tokens)</TableHead>
+                <TableHead>TTS Usage</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((row, idx) => (
+                <TableRow key={`usage-${idx}`}>
+                  <TableCell>{row.customerName}</TableCell>
+                  <TableCell>{row.customerApp}</TableCell>
+                  <TableCell>{row.nmtUsage}</TableCell>
+                  <TableCell>{row.llmUsage}</TableCell>
+                  <TableCell>{row.ttsUsage}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
