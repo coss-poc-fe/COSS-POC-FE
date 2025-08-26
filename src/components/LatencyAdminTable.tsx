@@ -163,9 +163,9 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
   const usageChartData = formatUsageChartData(filteredUsageData);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full h-screen p-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full min-h-screen p-4">
       {/* Latency Metrics */}
-      <Card className="shadow-lg rounded-2xl flex flex-col overflow-hidden">
+      <Card className="shadow-lg rounded-2xl flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-black">Latency Metrics</CardTitle>
           <Select value={latencyFilter} onValueChange={setLatencyFilter}>
@@ -182,8 +182,8 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
             </SelectContent>
           </Select>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4 h-full overflow-visible">
-          <div className="flex-1 overflow-auto border rounded-md">
+        <CardContent className="flex flex-col gap-4 flex-1">
+          <div className="max-h-[400px] overflow-auto border rounded-md">
             <Table>
               <TableHeader className="sticky top-0 bg-muted">
                 <TableRow>
@@ -219,7 +219,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
             </Table>
           </div>
 
-          <div className="h-[300px] flex-none">
+          <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={latencyChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -243,7 +243,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
       </Card>
 
       {/* Usage Metrics */}
-      <Card className="shadow-lg rounded-2xl flex flex-col overflow-hidden">
+      <Card className="shadow-lg rounded-2xl flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-black">Usage Metrics</CardTitle>
           <Select value={usageFilter} onValueChange={setUsageFilter}>
@@ -260,8 +260,8 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
             </SelectContent>
           </Select>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4 h-full">
-          <div className="flex-1 overflow-auto border rounded-md">
+        <CardContent className="flex flex-col gap-4 flex-1">
+          <div className="max-h-[400px] overflow-auto border rounded-md">
             <Table>
               <TableHeader className="sticky top-0 bg-muted">
                 <TableRow>
@@ -291,7 +291,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
             </Table>
           </div>
 
-          <div className="h-[300px] flex-none">
+          <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={usageChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
