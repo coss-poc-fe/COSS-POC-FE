@@ -12,10 +12,12 @@ export interface CustomerLatency {
   ttsusage: string;
   timestamp: string;
 }
-
+ 
 export const fetchCustomerLatency = async (customerType: string): Promise<CustomerLatency[]> => {
   const url = `/api/customers/${customerType}`;
   const response = await fetch(url);
   if (!response.ok) throw new Error("Failed to fetch");
   return response.json();
 };
+ 
+ 
