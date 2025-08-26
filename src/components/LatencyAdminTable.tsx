@@ -4,19 +4,15 @@ import * as React from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"; // Shadcn Select
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
 
 export interface LatencyData {
   requestId: string;
@@ -32,82 +28,89 @@ export interface LatencyData {
 
 interface LatencyAdminTableProps {
   data: LatencyData[];
-  caption?: string;
 }
 
 const msToSec = (val: string | number | null) => {
   if (!val) return 0;
-  const num = typeof val === "string" ? parseFloat(val.replace("ms", "")) : val;
-  return (num / 1000).toFixed(3); // Keep 3 decimal places
+  const num = typeof val === "string" ? parseFloat(val.toString().replace("ms", "")) : val;
+  return (num / 1000).toFixed(3);
 };
 
-export default function LatencyAdminTable({ data, caption }: LatencyAdminTableProps) {
-  const [selectedCustomer, setSelectedCustomer] = React.useState<string>("all");
+const formatChartData = (data: LatencyData[]) =>
+  data.slice(0, 10).map(item => ({
+    name: item.requestId.substring(0, 8),
+    langDetection: item.langdetectionLatency / 1000,
+    nmt: item.nmtLatency / 1000,
+    llm: item.llmLatency / 1000,
+    tts: item.ttsLatency / 1000,
+    overall: item.overallPipelineLatency / 1000,
+  }));
 
-  // Get unique customer names
-  const customerNames = React.useMemo(
-    () => ["all", ...Array.from(new Set(data.map((d) => d.customerName)))],
-    [data]
-  );
-
-  // Filter data based on selected customer
-  const filteredData =
-    selectedCustomer === "all"
-      ? data
-      : data.filter((row) => row.customerName === selectedCustomer);
+export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
+  const chartData = formatChartData(data);
 
   return (
-    <div className="space-y-4">
-      {/* Filter Dropdown */}
-      <div className="flex items-center gap-4">
-        <span className="font-medium">Filter by Customer:</span>
-        <Select
-          value={selectedCustomer}
-          onValueChange={setSelectedCustomer}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select customer" />
-          </SelectTrigger>
-          <SelectContent>
-            {customerNames.map((name) => (
-              <SelectItem key={name} value={name}>
-                {name === "all" ? "All Customers" : name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="flex flex-col w-full h-screen gap-4 p-4 overflow-hidden">
+      {/* Table Card */}
+      <Card className="shadow-lg rounded-2xl flex-1 overflow-hidden">
+        <CardHeader className="pb-2">
+          <CardTitle>Latency Metrics</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[calc(100%-60px)]">
+          <div className="h-full overflow-auto border rounded-md">
+            <Table>
+              <TableHeader className="sticky top-0 bg-muted">
+                <TableRow>
+                  <TableHead className="font-bold">Request ID</TableHead>
+                  <TableHead className="font-bold">Timestamp</TableHead>
+                  <TableHead className="font-bold">Customer Name</TableHead>
+                  <TableHead className="font-bold">Lang Detection (s)</TableHead>
+                  <TableHead className="font-bold">NMT (s)</TableHead>
+                  <TableHead className="font-bold">LLM (s)</TableHead>
+                  <TableHead className="font-bold">TTS (s)</TableHead>
+                  <TableHead className="font-bold">Overall (s)</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((row, idx) => (
+                  <TableRow key={row.requestId} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
+                    <TableCell className="font-mono text-xs">{row.requestId.substring(0, 8)}...</TableCell>
+                    <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
+                    <TableCell>{row.customerName}</TableCell>
+                    <TableCell>{msToSec(row.langdetectionLatency)}</TableCell>
+                    <TableCell>{msToSec(row.nmtLatency)}</TableCell>
+                    <TableCell>{msToSec(row.llmLatency)}</TableCell>
+                    <TableCell>{msToSec(row.ttsLatency)}</TableCell>
+                    <TableCell className="font-medium">{msToSec(row.overallPipelineLatency)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Table */}
-      <Table>
-        {caption && <TableCaption>{caption}</TableCaption>}
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[140px]">Request ID</TableHead>
-            <TableHead>Timestamp</TableHead>
-            <TableHead>Customer Name</TableHead>
-            <TableHead>Lang Detection</TableHead>
-            <TableHead>NMT (s)</TableHead>
-            <TableHead>LLM (s)</TableHead>
-            <TableHead>TTS (s)</TableHead>
-            <TableHead className="text-right">Overall Latency (s)</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredData.map((row) => (
-            <TableRow key={row.requestId}>
-              <TableCell className="font-medium">{row.requestId}</TableCell>
-              <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
-              <TableCell>{row.customerName}</TableCell>
-              <TableCell>{msToSec(row.langdetectionLatency)}</TableCell>
-              <TableCell>{msToSec(row.nmtLatency)}</TableCell>
-              <TableCell>{msToSec(row.llmLatency)}</TableCell>
-              <TableCell>{msToSec(row.ttsLatency)}</TableCell>
-              <TableCell className="text-right">{msToSec(row.overallPipelineLatency)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      {/* Chart Card */}
+      <Card className="shadow-lg rounded-2xl h-[400px]">
+        <CardHeader className="pb-2">
+          <CardTitle>Latency Breakdown</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[calc(100%-60px)]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="langDetection" fill="#8884d8" name="Lang Detection" />
+              <Bar dataKey="nmt" fill="#82ca9d" name="NMT" />
+              <Bar dataKey="llm" fill="#ffc658" name="LLM" />
+              <Bar dataKey="tts" fill="#ff8042" name="TTS" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 }
