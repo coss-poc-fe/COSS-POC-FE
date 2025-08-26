@@ -7,12 +7,15 @@ export interface CustomerLatency {
   llmlatency: string;
   ttslatency?: string; // Optional for cust2
   overallpipelinelatency: string;
+  nmtusage: string;
+  llmusage: string;
+  ttsusage: string;
   timestamp: string;
 }
 
 export const fetchCustomerLatency = async (customerType: string): Promise<CustomerLatency[]> => {
   const url = `/api/customers/${customerType}`;
   const response = await fetch(url);
-  if (!response.ok) throw new Error('Failed to fetch');
+  if (!response.ok) throw new Error("Failed to fetch");
   return response.json();
 };
