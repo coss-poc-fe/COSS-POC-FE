@@ -26,6 +26,9 @@ interface ApiResponseItem {
   ttslatency: string;
   overallpipelinelatency: string;
   timestamp: string;
+  nmtusage: string | null;
+  llmusage: string | null;
+  ttsusage: string | null;
 }
 
 // Aggregate API response type
@@ -147,6 +150,9 @@ export default function AdminPage() {
           nmtLatency: parseFloat(item.nmtlatency || "0"),
           llmLatency: parseFloat(item.llmlatency || "0"),
           ttsLatency: parseFloat(item.ttslatency || "0"),
+          nmtUsage: item.nmtusage || "0",
+        llmUsage: item.llmusage || "0",
+        ttsUsage: item.ttsusage || "0",
           overallPipelineLatency: parseFloat(
             item.overallpipelinelatency || "0"
           ),

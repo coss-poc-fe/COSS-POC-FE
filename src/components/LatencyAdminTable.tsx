@@ -23,6 +23,9 @@ export interface LatencyData {
   llmLatency: number;
   ttsLatency: number;
   overallPipelineLatency: number;
+  nmtUsage: number | string | null;
+  llmUsage: number | string | null;
+  ttsUsage: number | string | null;
   timestamp: string;
 }
 
@@ -69,6 +72,9 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                   <TableHead className="font-bold">LLM (s)</TableHead>
                   <TableHead className="font-bold">TTS (s)</TableHead>
                   <TableHead className="font-bold">Overall (s)</TableHead>
+                  <TableHead className="font-bold">NMT (Character)</TableHead>
+                  <TableHead className="font-bold">LLM (Token)</TableHead>
+                  <TableHead className="font-bold">TTS (Character)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -82,6 +88,9 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                     <TableCell>{msToSec(row.llmLatency)}</TableCell>
                     <TableCell>{msToSec(row.ttsLatency)}</TableCell>
                     <TableCell className="font-medium">{msToSec(row.overallPipelineLatency)}</TableCell>
+                    <TableCell>{row.nmtUsage ?? "0"}</TableCell>
+                    <TableCell>{row.llmUsage ?? "0"}</TableCell>
+                    <TableCell>{row.ttsUsage ?? "0"}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
