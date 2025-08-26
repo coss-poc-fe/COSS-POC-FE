@@ -4,8 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { CustomerLatency,fetchCustomerLatency } from '@/lib/fetchCustomerLatency';
-
+import { CustomerLatency, fetchCustomerLatency } from '@/lib/fetchCustomerLatency';
 
 interface ProcessedData {
   requestId: string;
@@ -13,6 +12,7 @@ interface ProcessedData {
   llm: number;
   tts?: number;
   total: number;
+  timestamp: string;
 }
 
 interface CustomerLatencyDashboardProps {
@@ -24,12 +24,12 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
   const [loading, setLoading] = useState(true);
   const [useSample, setUseSample] = useState(false);
 
-  // ✅ useMemo so we don't trigger ESLint warning in useEffect dependencies
+  // Sample data with timestamp for fallback
   const sampleData: ProcessedData[] = useMemo(
     () => [
-      { requestId: 'REQ001', nmt: 0.12, llm: 1.25, tts: 0.45, total: 1.82 },
-      { requestId: 'REQ002', nmt: 0.15, llm: 1.1, tts: 0.4, total: 1.65 },
-      { requestId: 'REQ003', nmt: 0.13, llm: 1.3, tts: 0.48, total: 1.91 },
+      { requestId: 'REQ001', nmt: 0.12, llm: 1.25, tts: 0.45, total: 1.82, timestamp: '2025-08-26T04:46:12.083990+00:00' },
+      { requestId: 'REQ002', nmt: 0.15, llm: 1.1, tts: 0.4, total: 1.65, timestamp: '2025-08-26T04:47:15.083990+00:00' },
+      { requestId: 'REQ003', nmt: 0.13, llm: 1.3, tts: 0.48, total: 1.91, timestamp: '2025-08-26T04:48:20.083990+00:00' },
     ],
     []
   );
@@ -48,6 +48,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
           llm: parseFloat(row.llmlatency.replace('ms', '')) / 1000,
           tts: row.ttslatency ? parseFloat(row.ttslatency.replace('ms', '')) / 1000 : undefined,
           total: parseFloat(row.overallpipelinelatency.replace('ms', '')) / 1000,
+          timestamp: row.timestamp
         }));
 
         setData(processed);
@@ -62,7 +63,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
     };
 
     loadData();
-  }, [customerType, sampleData]); // ✅ sampleData added to dependencies
+  }, [customerType, sampleData]);
 
   const filteredData = useMemo(
     () =>
@@ -73,6 +74,12 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
       }),
     [data, customerType]
   );
+
+  // Utility to format timestamps nicely
+  const formatTimestamp = (ts: string) => {
+    const date = new Date(ts);
+    return date.toLocaleString('en-IN', { hour12: true });
+  };
 
   return (
     <div className="h-full flex flex-col gap-3 mt-1">
@@ -96,6 +103,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
             <TableHeader>
               <TableRow>
                 <TableHead>Request ID</TableHead>
+                <TableHead>Timestamp</TableHead>
                 <TableHead>NMT Latency (s)</TableHead>
                 <TableHead>LLM Latency (s)</TableHead>
                 {customerType === 'cust1' && <TableHead>TTS Latency (s)</TableHead>}
@@ -106,6 +114,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
               {filteredData.map((row, idx) => (
                 <TableRow key={row.requestId + idx}>
                   <TableCell>{row.requestId}</TableCell>
+                  <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
                   <TableCell>{row.nmt.toFixed(3)}</TableCell>
                   <TableCell>{row.llm.toFixed(3)}</TableCell>
                   {customerType === 'cust1' && <TableCell>{row.tts?.toFixed(3) ?? 'N/A'}</TableCell>}
@@ -127,24 +136,14 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
         <CardContent className="h-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              {/* X-axis with label */}
-              <XAxis
-                dataKey="requestId"
-                label={{ value: 'Request ID', position: 'insideBottom', offset: -5 }}
-                tick={false} // hides individual request IDs
-              />
-              {/* Y-axis with label */}
+              <XAxis dataKey="requestId" label={{ value: 'Request ID', position: 'insideBottom', offset: -5 }} tick={false} />
               <YAxis label={{ value: 'Latency (s)', angle: -90, position: 'insideLeft' }} />
-              {/* Tooltip remains */}
               <Tooltip formatter={(value: number) => `${value.toFixed(3)}s`} />
-              
-              {/* Bars */}
               <Bar dataKey="nmt" stackId="a" fill="#8884d8" />
               <Bar dataKey="llm" stackId="a" fill="#82ca9d" />
               {customerType === 'cust1' && <Bar dataKey="tts" stackId="a" fill="#ffc658" />}
             </BarChart>
           </ResponsiveContainer>
-
         </CardContent>
       </Card>
     </div>
