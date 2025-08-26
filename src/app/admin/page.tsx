@@ -90,57 +90,67 @@ export default function AdminPage() {
   }, []);
 
   // Fetch aggregate data with p90/p95/p99
-  useEffect(() => {
-    async function fetchAggregate() {
-      try {
+  // Fetch aggregate data with p90/p95/p99
+useEffect(() => {
+  async function fetchAggregate() {
+    try {
+      const customers = ["cust1", "cust2"];
+      const allData: AggregateData[] = [];
+
+      for (const name of customers) {
         const response = await fetch("/api/customer-aggregate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ customerName: "cust1" }),
+          body: JSON.stringify({ customerName: name }),
         });
 
-        if (!response.ok) throw new Error(`Failed to fetch aggregate: ${response.status}`);
+        if (!response.ok) throw new Error(`Failed for ${name}`);
         const data = await response.json();
 
         const transformed: AggregateData[] = (data.aggregates || []).map((item: any) => ({
           customerName: item.customerName,
           customerApp: item.customerApp,
-          langdetectionLatency: item.avg_langdetectionLatency ?? 0,
-          nmtLatency: item.avg_nmtLatency ?? 0,
-          llmLatency: item.avg_llmLatency ?? 0,
-          ttsLatency: item.avg_ttsLatency ?? 0,
-          overallPipelineLatency: item.avg_overallPipelineLatency ?? 0,
-          nmtUsage: item.avg_nmtUsage ?? 0,
-          llmUsage: item.avg_llmUsage ?? 0,
-          ttsUsage: item.avg_ttsUsage ?? 0,
-          p90_langdetectionLatency: item.p90_langdetectionLatency ?? 0,
-          p95_langdetectionLatency: item.p95_langdetectionLatency ?? 0,
-          p99_langdetectionLatency: item.p99_langdetectionLatency ?? 0,
-          p90_nmtLatency: item.p90_nmtLatency ?? 0,
-          p95_nmtLatency: item.p95_nmtLatency ?? 0,
-          p99_nmtLatency: item.p99_nmtLatency ?? 0,
-          p90_llmLatency: item.p90_llmLatency ?? 0,
-          p95_llmLatency: item.p95_llmLatency ?? 0,
-          p99_llmLatency: item.p99_llmLatency ?? 0,
-          p90_ttsLatency: item.p90_ttsLatency ?? 0,
-          p95_ttsLatency: item.p95_ttsLatency ?? 0,
-          p99_ttsLatency: item.p99_ttsLatency ?? 0,
-          p90_overallPipelineLatency: item.p90_overallPipelineLatency ?? 0,
-          p95_overallPipelineLatency: item.p95_overallPipelineLatency ?? 0,
-          p99_overallPipelineLatency: item.p99_overallPipelineLatency ?? 0,
+          langdetectionLatency: Number(item.avg_langdetectionLatency ?? 0),
+          nmtLatency: Number(item.avg_nmtLatency ?? 0),
+          llmLatency: Number(item.avg_llmLatency ?? 0),
+          ttsLatency: Number(item.avg_ttsLatency ?? 0),
+          overallPipelineLatency: Number(item.avg_overallPipelineLatency ?? 0),
+          nmtUsage: Number(item.avg_nmtUsage ?? 0),
+          llmUsage: Number(item.avg_llmUsage ?? 0),
+          ttsUsage: Number(item.avg_ttsUsage ?? 0),
+          p90_langdetectionLatency: Number(item.p90_langdetectionLatency ?? 0),
+          p95_langdetectionLatency: Number(item.p95_langdetectionLatency ?? 0),
+          p99_langdetectionLatency: Number(item.p99_langdetectionLatency ?? 0),
+          p90_nmtLatency: Number(item.p90_nmtLatency ?? 0),
+          p95_nmtLatency: Number(item.p95_nmtLatency ?? 0),
+          p99_nmtLatency: Number(item.p99_nmtLatency ?? 0),
+          p90_llmLatency: Number(item.p90_llmLatency ?? 0),
+          p95_llmLatency: Number(item.p95_llmLatency ?? 0),
+          p99_llmLatency: Number(item.p99_llmLatency ?? 0),
+          p90_ttsLatency: Number(item.p90_ttsLatency ?? 0),
+          p95_ttsLatency: Number(item.p95_ttsLatency ?? 0),
+          p99_ttsLatency: Number(item.p99_ttsLatency ?? 0),
+          p90_overallPipelineLatency: Number(item.p90_overallPipelineLatency ?? 0),
+          p95_overallPipelineLatency: Number(item.p95_overallPipelineLatency ?? 0),
+          p99_overallPipelineLatency: Number(item.p99_overallPipelineLatency ?? 0),
         }));
 
-        setAggregateData(transformed);
-      } catch (error) {
-        console.error("Aggregate fetch error:", error);
-        setAggregateData(mockAggregateData);
-      } finally {
-        setLoadingAggregate(false);
+        allData.push(...transformed);
       }
-    }
 
-    fetchAggregate();
-  }, []);
+      setAggregateData(allData);
+    } catch (error) {
+      console.error("Aggregate fetch error:", error);
+      setAggregateData(mockAggregateData);
+    } finally {
+      setLoadingAggregate(false);
+    }
+  }
+
+  fetchAggregate();
+}, []);
+
+
 
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden">
