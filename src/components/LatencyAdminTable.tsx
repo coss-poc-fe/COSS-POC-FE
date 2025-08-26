@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import * as React from "react";
 import {
@@ -10,6 +10,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   BarChart,
   Bar,
@@ -42,45 +49,66 @@ interface LatencyAdminTableProps {
 
 // Helpers
 const msToSec = (val: number | string | null) => {
-  if (val === null || val === undefined || val === "none" || val === "NONE" || val == "None"  || val === 0 || val === "0") return "-";
-  const num = typeof val === "string" ? parseFloat(val.toString().replace("ms", "")) : val;
+  if (
+    val === null ||
+    val === undefined ||
+    val === "none" ||
+    val === "NONE" ||
+    val === "None" ||
+    val === 0 ||
+    val === "0"
+  )
+    return "-";
+  const num =
+    typeof val === "string"
+      ? parseFloat(val.toString().replace("ms", ""))
+      : val;
   if (!num) return "-";
   return (num / 1000).toFixed(3);
 };
 
 const formatValue = (val: number | string | null) => {
-  if (val === null || val === undefined || val === "none" ||  val == "None" ||val === 0 || val === "0") return "-";
+  if (
+    val === null ||
+    val === undefined ||
+    val === "none" ||
+    val === "None" ||
+    val === 0 ||
+    val === "0"
+  )
+    return "-";
   return val;
 };
 
 const formatTimestamp = (ts: string) => {
   if (!ts) return "-";
-
-  const fixedTs = ts.replace(/\.(\d{3})\d+/, '.$1');
-
-  const date = new Date(fixedTs + 'Z');
-
+  const fixedTs = ts.replace(/\.(\d{3})\d+/, ".$1");
+  const date = new Date(fixedTs + "Z");
   const options: Intl.DateTimeFormatOptions = {
-    timeZone: 'Asia/Kolkata', // IST
+    timeZone: "Asia/Kolkata",
     hour12: true,
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   };
-  return new Intl.DateTimeFormat('en-IN', options).format(date);
+  return new Intl.DateTimeFormat("en-IN", options).format(date);
 };
 
-// Preprocess data to replace "none" with "-"
+// Preprocess data
 const normalizeData = (data: LatencyData[]): LatencyData[] =>
   data.map((item) => ({
     ...item,
-    langdetectionLatency: item.langdetectionLatency === "none" ? "-" : item.langdetectionLatency,
+    langdetectionLatency:
+      item.langdetectionLatency === "none" ? "-" : item.langdetectionLatency,
     nmtLatency: item.nmtLatency === "none" ? "-" : item.nmtLatency,
     llmLatency: item.llmLatency === "none" ? "-" : item.llmLatency,
     ttsLatency: item.ttsLatency === "none" ? "-" : item.ttsLatency,
-    overallPipelineLatency: item.overallPipelineLatency === "none" ? "-" : item.overallPipelineLatency,
+    overallPipelineLatency:
+      item.overallPipelineLatency === "none"
+        ? "-"
+        : item.overallPipelineLatency,
     nmtUsage: item.nmtUsage === "none" ? "-" : item.nmtUsage,
     llmUsage: item.llmUsage === "none" ? "-" : item.llmUsage,
     ttsUsage: item.ttsUsage === "none" ? "-" : item.ttsUsage,
@@ -90,11 +118,17 @@ const normalizeData = (data: LatencyData[]): LatencyData[] =>
 const formatLatencyChartData = (data: LatencyData[]) =>
   data.slice(0, 10).map((item) => ({
     name: item.requestId.substring(0, 8),
-    langDetection: typeof item.langdetectionLatency === "number" ? item.langdetectionLatency / 1000 : 0,
+    langDetection:
+      typeof item.langdetectionLatency === "number"
+        ? item.langdetectionLatency / 1000
+        : 0,
     nmt: typeof item.nmtLatency === "number" ? item.nmtLatency / 1000 : 0,
     llm: typeof item.llmLatency === "number" ? item.llmLatency / 1000 : 0,
     tts: typeof item.ttsLatency === "number" ? item.ttsLatency / 1000 : 0,
-    overall: typeof item.overallPipelineLatency === "number" ? item.overallPipelineLatency / 1000 : 0,
+    overall:
+      typeof item.overallPipelineLatency === "number"
+        ? item.overallPipelineLatency / 1000
+        : 0,
   }));
 
 const formatUsageChartData = (data: LatencyData[]) =>
@@ -107,18 +141,48 @@ const formatUsageChartData = (data: LatencyData[]) =>
 
 export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
   const normalizedData = normalizeData(data);
-  const latencyChartData = formatLatencyChartData(normalizedData);
-  const usageChartData = formatUsageChartData(normalizedData);
+
+  // Dropdown filters for each table
+  const [latencyFilter, setLatencyFilter] = React.useState<string>("All");
+  const [usageFilter, setUsageFilter] = React.useState<string>("All");
+
+  // Unique customer names
+  const customerNames = Array.from(
+    new Set(normalizedData.map((d) => d.customerName))
+  ).filter(Boolean) as string[];
+
+  // Filtered data based on dropdown
+  const filteredLatencyData = normalizedData.filter(
+    (d) => latencyFilter === "All" || d.customerName === latencyFilter
+  );
+  const filteredUsageData = normalizedData.filter(
+    (d) => usageFilter === "All" || d.customerName === usageFilter
+  );
+
+  const latencyChartData = formatLatencyChartData(filteredLatencyData);
+  const usageChartData = formatUsageChartData(filteredUsageData);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full h-screen p-4">
       {/* Latency Metrics */}
       <Card className="shadow-lg rounded-2xl flex flex-col overflow-hidden">
-        <CardHeader>
-          <CardTitle>Latency Metrics</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-black">Latency Metrics</CardTitle>
+          <Select value={latencyFilter} onValueChange={setLatencyFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select customer" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Customers</SelectItem>
+              {customerNames.map((name) => (
+                <SelectItem key={name} value={name}>
+                  {name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4 h-full">
-          {/* Table */}
+        <CardContent className="flex flex-col gap-4 h-full overflow-visible">
           <div className="flex-1 overflow-auto border rounded-md">
             <Table>
               <TableHeader className="sticky top-0 bg-muted">
@@ -134,9 +198,14 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {normalizedData.map((row, idx) => (
-                  <TableRow key={row.requestId} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
-                    <TableCell className="font-mono text-xs">{row.requestId.substring(0, 8)}...</TableCell>
+                {filteredLatencyData.map((row, idx) => (
+                  <TableRow
+                    key={row.requestId}
+                    className={idx % 2 === 0 ? "bg-muted/30" : ""}
+                  >
+                    <TableCell className="font-mono text-xs">
+                      {row.requestId.substring(0, 8)}...
+                    </TableCell>
                     <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
                     <TableCell>{row.customerName || "-"}</TableCell>
                     <TableCell>{msToSec(row.langdetectionLatency)}</TableCell>
@@ -150,7 +219,6 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
             </Table>
           </div>
 
-          {/* Chart */}
           <div className="h-[300px] flex-none">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={latencyChartData}>
@@ -159,7 +227,11 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="langDetection" fill="#8884d8" name="Lang Detection" />
+                <Bar
+                  dataKey="langDetection"
+                  fill="#8884d8"
+                  name="Lang Detection"
+                />
                 <Bar dataKey="nmt" fill="#82ca9d" name="NMT" />
                 <Bar dataKey="llm" fill="#ffc658" name="LLM" />
                 <Bar dataKey="tts" fill="#ff8042" name="TTS" />
@@ -172,11 +244,23 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
 
       {/* Usage Metrics */}
       <Card className="shadow-lg rounded-2xl flex flex-col overflow-hidden">
-        <CardHeader>
-          <CardTitle>Usage Metrics</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-black">Usage Metrics</CardTitle>
+          <Select value={usageFilter} onValueChange={setUsageFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select customer" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Customers</SelectItem>
+              {customerNames.map((name) => (
+                <SelectItem key={name} value={name}>
+                  {name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardHeader>
         <CardContent className="flex flex-col gap-4 h-full">
-          {/* Table */}
           <div className="flex-1 overflow-auto border rounded-md">
             <Table>
               <TableHeader className="sticky top-0 bg-muted">
@@ -189,9 +273,14 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {normalizedData.map((row, idx) => (
-                  <TableRow key={`${row.requestId}-usage`} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
-                    <TableCell className="font-mono text-xs">{row.requestId.substring(0, 8)}...</TableCell>
+                {filteredUsageData.map((row, idx) => (
+                  <TableRow
+                    key={`${row.requestId}-usage`}
+                    className={idx % 2 === 0 ? "bg-muted/30" : ""}
+                  >
+                    <TableCell className="font-mono text-xs">
+                      {row.requestId.substring(0, 8)}...
+                    </TableCell>
                     <TableCell>{row.customerName || "-"}</TableCell>
                     <TableCell>{formatValue(row.nmtUsage)}</TableCell>
                     <TableCell>{formatValue(row.llmUsage)}</TableCell>
@@ -202,7 +291,6 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
             </Table>
           </div>
 
-          {/* Chart */}
           <div className="h-[300px] flex-none">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={usageChartData}>

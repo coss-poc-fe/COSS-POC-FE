@@ -112,7 +112,7 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                       { name: "Overall", p90: row.p90_overallPipelineLatency, p95: row.p95_overallPipelineLatency, p99: row.p99_overallPipelineLatency },
                     ];
                     return latencies.map((lat, i) => (
-                      <TableRow key={`lat-${idx}-${i}`} className={(idx + i) % 2 === 0 ? "bg-muted/30" : ""}>
+                      <TableRow key={`lat-${idx}-${i}`} className={(idx + i) % 2 === 0 ? "" : ""}>
                         {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerName || "-"}</TableCell>}
                         {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerApp || "-"}</TableCell>}
                         <TableCell>{lat.name}</TableCell>

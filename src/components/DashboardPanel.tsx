@@ -37,7 +37,7 @@ const formatTimestamp = (ts: string) => {
   const date = new Date(fixedTs + 'Z');
 
   const options: Intl.DateTimeFormatOptions = {
-    timeZone: 'Asia/Kolkata', // IST
+    timeZone: 'Asia/Kolkata',
     hour12: true,
     month: 'short',
     day: 'numeric',
