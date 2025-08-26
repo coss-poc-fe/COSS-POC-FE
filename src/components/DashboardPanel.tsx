@@ -113,10 +113,10 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
                 <TableRow>
                   <TableHead className="text-xs">Request ID</TableHead>
                   <TableHead className="text-xs hidden sm:table-cell">Timestamp</TableHead>
+                  <TableHead className="text-xs">Lang Detection (s)</TableHead>
                   <TableHead className="text-xs">NMT (s)</TableHead>               
                   <TableHead className="text-xs">LLM (s)</TableHead>
                   {customerType === 'cust1' && <TableHead className="text-xs">TTS (s)</TableHead>}
-                  <TableHead className="text-xs">Lang Detection (s)</TableHead>
                   <TableHead className="text-xs">NMT (character)</TableHead>
                   <TableHead className="text-xs">LLM (token)</TableHead>
                   {customerType === 'cust1' && <TableHead className="text-xs">TTS (character)</TableHead>}
@@ -128,10 +128,10 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
                   <TableRow key={row.requestId + idx} className="text-xs">
                     <TableCell className="font-mono">{row.requestId}</TableCell>
                     <TableCell className="hidden sm:table-cell text-xs">{formatTimestamp(row.timestamp)}</TableCell>
+                    <TableCell>{displayValue(row.langDetection)}</TableCell>
                     <TableCell>{displayValue(row.nmt)}</TableCell>
                     <TableCell>{displayValue(row.llm)}</TableCell>
                     {customerType === 'cust1' && <TableCell>{displayValue(row.tts)}</TableCell>}
-                    <TableCell>{displayValue(row.langDetection)}</TableCell>
                     <TableCell>{displayValue(row.nmtUsage)}</TableCell>
                     <TableCell>{displayValue(row.llmUsage)}</TableCell>
                     {customerType === 'cust1' && <TableCell>{displayValue(row.ttsUsage)}</TableCell>}
