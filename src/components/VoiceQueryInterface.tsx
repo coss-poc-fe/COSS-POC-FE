@@ -114,15 +114,15 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
     if (message.type === "user") {
       return (
         <div key={message.id} className="flex justify-end mb-6">
-          <div className="flex items-end gap-3 max-w-[100%]">
-            <div className="bg-black text-white rounded-2xl px-5 py-2">
-              <p>{message.content}</p>
+          <div className="flex items-end gap-2 sm:gap-3 max-w-[85%] sm:max-w-[75%]">
+            <div className="bg-black text-white rounded-2xl px-3 sm:px-5 py-2 break-words">
+              <p className="text-sm sm:text-base">{message.content}</p>
               {mounted && (
                 <p className="text-xs text-black-100 mt-2">{formatTime(message.timestamp)}</p>
               )}
             </div>
-            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-              <User className="h-5 w-5 text-white" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+              <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
           </div>
         </div>
@@ -132,12 +132,12 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
     if (message.type === "ai") {
       return (
         <div key={message.id} className="flex justify-start mb-6">
-          <div className="flex items-end gap-3 max-w-[75%]">
-            <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-              <Bot className="h-5 w-5 text-white" />
+          <div className="flex items-end gap-2 sm:gap-3 max-w-[85%] sm:max-w-[75%]">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+              <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
-            <div className=" text-slate-800 rounded-2xl px-5 py-4 border border-slate-200">
-              <p>{message.content}</p>
+            <div className="text-slate-800 rounded-2xl px-3 sm:px-5 py-3 sm:py-4 border border-slate-200 break-words">
+              <p className="text-sm sm:text-base">{message.content}</p>
               {mounted && (
                 <p className="text-xs text-slate-500 mt-2">{formatTime(message.timestamp)}</p>
               )}
@@ -150,12 +150,12 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
     if (mounted && message.type === "audio" && message.audioUrl) {
   return (
     <div key={message.id} className="flex justify-start mb-6">
-      <div className="flex items-end gap-3 max-w-[75%]">
-        <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-          <Play className="h-5 w-5 text-white" />
+      <div className="flex items-end gap-2 sm:gap-3 max-w-[85%] sm:max-w-[75%]">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+          <Play className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
         </div>
-        <div className="bg-gray-50 w-100 border border-slate-200 rounded-2xl px-5 py-4">
-          <div className="flex gap-2">
+        <div className="bg-gray-50 w-full border border-slate-200 rounded-2xl px-3 sm:px-5 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -171,9 +171,9 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
                   }
                 }
               }}
-              className="flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-100"
+              className="flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-100 text-xs sm:text-sm"
             >
-              {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+              {isPlaying ? <Pause className="h-3 w-3 sm:h-4 sm:w-4" /> : <Play className="h-3 w-3 sm:h-4 sm:w-4" />}
               {isPlaying ? "Pause" : "Play"}
             </Button>
 
@@ -187,14 +187,14 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
                   setIsPlaying(false);
                 }
               }}
-              className="flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-100"
+              className="flex items-center gap-2 text-slate-700 border-slate-300 hover:bg-slate-100 text-xs sm:text-sm"
             >
-              <Square className="h-4 w-4" />
+              <Square className="h-3 w-3 sm:h-4 sm:w-4" />
               Stop
             </Button>
           </div>
 
-          <audio ref={audioRef} onEnded={() => setIsPlaying(false)} controls className="mt-2 w-full" />
+          <audio ref={audioRef} onEnded={() => setIsPlaying(false)} controls className="mt-2 w-full max-w-full" />
           {mounted && (
             <p className="text-xs text-slate-500 mt-3">{formatTime(message.timestamp)}</p>
           )}
@@ -206,33 +206,33 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
   }
 
   return (
-    <div className="flex flex-col h-[880px] w-390   rounded-lg bg-white shadow-1xl">
+    <div className="flex flex-col h-full w-full bg-transparent overflow-hidden">
       {/* Chat Header */}
-      <div className="bg-grey-50 text-white p-6 flex items-center justify-between rounded-t-lg border border-slate-200">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-            <Bot className="h-7 w-7 text-white" />
+      <div className="bg-grey-50 text-white p-4 sm:p-6 flex items-center justify-between border-b border-slate-200 flex-shrink-0">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+            <Bot className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
           </div>
-          <div >
-            <h1 className="text-xl text-slate-700 font-semibold ">COSS AI</h1>
-            <p className="text-sm text-slate-500">Audio for Cust1, Text for Cust2</p>
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-xl text-slate-700 font-semibold truncate">COSS AI</h1>
+            <p className="text-xs sm:text-sm text-slate-500 truncate">Audio for Cust1, Text for Cust2</p>
           </div>
         </div>
-        <div className="w-3 h-3 bg-emerald-400 rounded-full"></div>
+        <div className="w-3 h-3 bg-emerald-400 rounded-full flex-shrink-0"></div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-1 ">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-1 min-h-0">
         {messages.map(renderMessage)}
         {isLoading && (
           <div className="flex justify-start mb-4">
-            <div className="flex items-end gap-3">
-              <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center">
-                <Bot className="h-5 w-5 text-white" />
+            <div className="flex items-end gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 flex gap-2 items-center">
-                <Loader2 className="h-5 w-5 animate-spin text-slate-600" />
-                <span className="text-sm text-slate-600">Processing...</span>
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl px-3 sm:px-5 py-3 sm:py-4 flex gap-2 items-center">
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-slate-600" />
+                <span className="text-xs sm:text-sm text-slate-600">Processing...</span>
               </div>
             </div>
           </div>
@@ -242,33 +242,33 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
 
       {/* Error Display */}
       {error && (
-        <div className="mx-6 mb-3">
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 text-sm">{error}</p>
+        <div className="mx-4 sm:mx-6 mb-3 flex-shrink-0">
+          <div className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 text-xs sm:text-sm break-words">{error}</p>
           </div>
         </div>
       )}
 
       {/* Input Box */}
-      <div className="border-t bg-white p-6 rounded-b-lg border-slate-200">
-        <div className="flex gap-4 items-end">
+      <div className="border-t bg-white p-4 sm:p-6 border-slate-200 flex-shrink-0">
+        <div className="flex gap-2 sm:gap-4 items-end">
           <Textarea
             placeholder="Type your message..."
             value={queryText}
             onChange={(e) => setQueryText(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="min-h-[70px] max-h-[140px] resize-none border-slate-300 focus:border-black text-base p-4"
+            className="min-h-[50px] sm:min-h-[70px] max-h-[100px] sm:max-h-[140px] resize-none border-slate-300 focus:border-black text-sm sm:text-base p-3 sm:p-4"
             disabled={isLoading}
           />
           <Button
             onClick={handleProcessTextQuery}
             disabled={isLoading || !queryText.trim()}
-            className="h-[70px] px-8 bg-black hover:bg-grey-800 text-white text-base"
+            className="h-[50px] sm:h-[70px] px-4 sm:px-8 bg-black hover:bg-grey-800 text-white text-sm sm:text-base flex-shrink-0"
           >
             {isLoading ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
+              <Loader2 className="h-4 w-4 sm:h-6 sm:w-6 animate-spin" />
             ) : (
-              <Send className="h-6 w-6" />
+              <Send className="h-4 w-4 sm:h-6 sm:w-6" />
             )}
           </Button>
         </div>

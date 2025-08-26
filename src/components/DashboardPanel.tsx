@@ -30,6 +30,8 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
       { requestId: 'REQ001', nmt: 0.12, llm: 1.25, tts: 0.45, total: 1.82, timestamp: '2025-08-26T04:46:12.083990+00:00' },
       { requestId: 'REQ002', nmt: 0.15, llm: 1.1, tts: 0.4, total: 1.65, timestamp: '2025-08-26T04:47:15.083990+00:00' },
       { requestId: 'REQ003', nmt: 0.13, llm: 1.3, tts: 0.48, total: 1.91, timestamp: '2025-08-26T04:48:20.083990+00:00' },
+      { requestId: 'REQ004', nmt: 0.11, llm: 1.15, tts: 0.42, total: 1.68, timestamp: '2025-08-26T04:49:25.083990+00:00' },
+      { requestId: 'REQ005', nmt: 0.14, llm: 1.35, tts: 0.46, total: 1.95, timestamp: '2025-08-26T04:50:30.083990+00:00' },
     ],
     []
   );
@@ -78,74 +80,108 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
   // Utility to format timestamps nicely
   const formatTimestamp = (ts: string) => {
     const date = new Date(ts);
-    return date.toLocaleString('en-IN', { hour12: true });
+    return date.toLocaleString('en-IN', { 
+      hour12: true,
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
-    <div className="h-full flex flex-col gap-3 mt-1">
-      {/* Status */}
-      <Card className="bg-grey-200 border-grey-200 p-2">
-        <div className="flex justify-between items-center text-sm">
+    <div className="h-full flex flex-col gap-3 overflow-hidden">
+      {/* Status Card */}
+      <Card className="bg-slate-50 border-slate-200 flex-shrink-0">
+        <div className="p-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-md">
           <span>Data Source: {loading ? 'Loading...' : useSample ? 'Sample Data' : 'API Data'}</span>
           <span>Records: {filteredData.length}</span>
         </div>
       </Card>
 
-      {/* Table */}
-      <Card className="h-[440px] bg-white border-none rounded-none">
-        <CardHeader>
-          <CardTitle className="text-lg text-gray-800">
-            Latency Data {useSample && '(Sample)'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="h-full overflow-y-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Request ID</TableHead>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>NMT Latency (s)</TableHead>
-                <TableHead>LLM Latency (s)</TableHead>
-                {customerType === 'cust1' && <TableHead>TTS Latency (s)</TableHead>}
-                <TableHead>Total Response (s)</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredData.map((row, idx) => (
-                <TableRow key={row.requestId + idx}>
-                  <TableCell>{row.requestId}</TableCell>
-                  <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
-                  <TableCell>{row.nmt.toFixed(3)}</TableCell>
-                  <TableCell>{row.llm.toFixed(3)}</TableCell>
-                  {customerType === 'cust1' && <TableCell>{row.tts?.toFixed(3) ?? 'N/A'}</TableCell>}
-                  <TableCell>{row.total.toFixed(3)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {/* Content - Vertical Layout: Table above, Chart below */}
+      <div className="flex-1 flex flex-col gap-3 overflow-hidden min-h-0">
+        
+        {/* Table Card - Top Half */}
+        <Card className="bg-white border-slate-200 flex flex-col min-h-0 flex-1">
+          <CardHeader className="flex-shrink-0 pb-3">
+            <CardTitle className="text-base sm:text-lg text-gray-800">
+              Latency Data {useSample && '(Sample)'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-hidden p-0 px-6 pb-6">
+            <div className="h-full overflow-auto border rounded-md">
+              <Table>
+                <TableHeader className="sticky top-0 bg-white z-10">
+                  <TableRow>
+                    <TableHead className="text-xs">Request ID</TableHead>
+                    <TableHead className="text-xs hidden sm:table-cell">Timestamp</TableHead>
+                    <TableHead className="text-xs">NMT (s)</TableHead>
+                    <TableHead className="text-xs">LLM (s)</TableHead>
+                    {customerType === 'cust1' && <TableHead className="text-xs">TTS (s)</TableHead>}
+                    <TableHead className="text-xs">Total (s)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredData.map((row, idx) => (
+                    <TableRow key={row.requestId + idx} className="text-xs">
+                      <TableCell className="font-mono">{row.requestId}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-xs">{formatTimestamp(row.timestamp)}</TableCell>
+                      <TableCell>{row.nmt.toFixed(3)}</TableCell>
+                      <TableCell>{row.llm.toFixed(3)}</TableCell>
+                      {customerType === 'cust1' && <TableCell>{row.tts?.toFixed(3) ?? 'N/A'}</TableCell>}
+                      <TableCell className="font-semibold">{row.total.toFixed(3)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Chart */}
-      <Card className="h-[440px] bg-white border-none rounded-none">
-        <CardHeader>
-          <CardTitle className="text-lg text-gray-800">
-            Latency Visualization {useSample && '(Sample)'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="h-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <XAxis dataKey="requestId" label={{ value: 'Request ID', position: 'insideBottom', offset: -5 }} tick={false} />
-              <YAxis label={{ value: 'Latency (s)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip formatter={(value: number) => `${value.toFixed(3)}s`} />
-              <Bar dataKey="nmt" stackId="a" fill="#8884d8" />
-              <Bar dataKey="llm" stackId="a" fill="#82ca9d" />
-              {customerType === 'cust1' && <Bar dataKey="tts" stackId="a" fill="#ffc658" />}
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+        {/* Chart Card - Bottom Half */}
+        <Card className="bg-white border-slate-200 flex flex-col min-h-0 flex-1">
+          <CardHeader className="flex-shrink-0 pb-3">
+            <CardTitle className="text-base sm:text-lg text-gray-800">
+              Latency Visualization {useSample && '(Sample)'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 min-h-0">
+            <div className="h-full min-h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                  data={filteredData} 
+                  margin={{ top: 10, right: 15, left: 15, bottom: 20 }}
+                >
+                  <XAxis 
+                    dataKey="requestId" 
+                    tick={{ fontSize: 10 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 10 }}
+                    label={{ 
+                      value: 'Latency (s)', 
+                      angle: -90, 
+                      position: 'insideLeft',
+                      style: { fontSize: '10px' }
+                    }} 
+                  />
+                  <Tooltip 
+                    formatter={(value: number) => `${value.toFixed(3)}s`}
+                    contentStyle={{ fontSize: '12px' }}
+                  />
+                  <Bar dataKey="nmt" stackId="a" fill="#8884d8" name="NMT" />
+                  <Bar dataKey="llm" stackId="a" fill="#82ca9d" name="LLM" />
+                  {customerType === 'cust1' && <Bar dataKey="tts" stackId="a" fill="#ffc658" name="TTS" />}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
