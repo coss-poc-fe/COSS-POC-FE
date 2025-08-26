@@ -25,11 +25,11 @@ export interface LatencyData {
   requestId: string;
   customerName: string;
   customerApp: string;
-  langdetectionLatency: number;
-  nmtLatency: number;
-  llmLatency: number;
-  ttsLatency: number;
-  overallPipelineLatency: number;
+  langdetectionLatency: number | string | null;
+  nmtLatency: number | string | null;
+  llmLatency: number | string | null;
+  ttsLatency: number | string | null;
+  overallPipelineLatency: number | string | null;
   nmtUsage: number | string | null;
   llmUsage: number | string | null;
   ttsUsage: number | string | null;
@@ -42,26 +42,40 @@ interface LatencyAdminTableProps {
 
 // Helpers
 const msToSec = (val: number | string | null) => {
-  if (!val || val === "none") return "-";
-  const num = typeof val === "string" ? parseFloat(val.replace("ms", "")) : val;
+  if (val === null || val === undefined || val === "none" || val === "NONE" || val == "None"  || val === 0 || val === "0") return "-";
+  const num = typeof val === "string" ? parseFloat(val.toString().replace("ms", "")) : val;
   if (!num) return "-";
   return (num / 1000).toFixed(3);
 };
 
 const formatValue = (val: number | string | null) => {
-  if (!val || val === "none" || val === 0 || val === "0") return "-";
+  if (val === null || val === undefined || val === "none" ||  val == "None" ||val === 0 || val === "0") return "-";
   return val;
 };
+
+// Preprocess data to replace "none" with "-"
+const normalizeData = (data: LatencyData[]): LatencyData[] =>
+  data.map((item) => ({
+    ...item,
+    langdetectionLatency: item.langdetectionLatency === "none" ? "-" : item.langdetectionLatency,
+    nmtLatency: item.nmtLatency === "none" ? "-" : item.nmtLatency,
+    llmLatency: item.llmLatency === "none" ? "-" : item.llmLatency,
+    ttsLatency: item.ttsLatency === "none" ? "-" : item.ttsLatency,
+    overallPipelineLatency: item.overallPipelineLatency === "none" ? "-" : item.overallPipelineLatency,
+    nmtUsage: item.nmtUsage === "none" ? "-" : item.nmtUsage,
+    llmUsage: item.llmUsage === "none" ? "-" : item.llmUsage,
+    ttsUsage: item.ttsUsage === "none" ? "-" : item.ttsUsage,
+  }));
 
 // Chart data
 const formatLatencyChartData = (data: LatencyData[]) =>
   data.slice(0, 10).map((item) => ({
     name: item.requestId.substring(0, 8),
-    langDetection: item.langdetectionLatency / 1000,
-    nmt: item.nmtLatency / 1000,
-    llm: item.llmLatency / 1000,
-    tts: item.ttsLatency / 1000,
-    overall: item.overallPipelineLatency / 1000,
+    langDetection: typeof item.langdetectionLatency === "number" ? item.langdetectionLatency / 1000 : 0,
+    nmt: typeof item.nmtLatency === "number" ? item.nmtLatency / 1000 : 0,
+    llm: typeof item.llmLatency === "number" ? item.llmLatency / 1000 : 0,
+    tts: typeof item.ttsLatency === "number" ? item.ttsLatency / 1000 : 0,
+    overall: typeof item.overallPipelineLatency === "number" ? item.overallPipelineLatency / 1000 : 0,
   }));
 
 const formatUsageChartData = (data: LatencyData[]) =>
@@ -73,8 +87,9 @@ const formatUsageChartData = (data: LatencyData[]) =>
   }));
 
 export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
-  const latencyChartData = formatLatencyChartData(data);
-  const usageChartData = formatUsageChartData(data);
+  const normalizedData = normalizeData(data);
+  const latencyChartData = formatLatencyChartData(normalizedData);
+  const usageChartData = formatUsageChartData(normalizedData);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full h-screen p-4">
@@ -100,7 +115,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((row, idx) => (
+                {normalizedData.map((row, idx) => (
                   <TableRow key={row.requestId} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
                     <TableCell className="font-mono text-xs">{row.requestId.substring(0, 8)}...</TableCell>
                     <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
@@ -155,7 +170,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.map((row, idx) => (
+                {normalizedData.map((row, idx) => (
                   <TableRow key={`${row.requestId}-usage`} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
                     <TableCell className="font-mono text-xs">{row.requestId.substring(0, 8)}...</TableCell>
                     <TableCell>{row.customerName || "-"}</TableCell>
