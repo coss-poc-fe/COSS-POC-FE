@@ -16,11 +16,19 @@ interface ProcessedData {
   llmUsage: number;
   ttsUsage?: number;
   timestamp: string;
+  langDetection: number; 
 }
 
 interface CustomerLatencyDashboardProps {
   customerType: 'cust1' | 'cust2';
 }
+
+// Utility to display value or '-' if zero, undefined, or "None"
+const displayValue = (val: number | undefined | string) => {
+  if (val === undefined || val === 0 || val === "None") return "-";
+  return typeof val === "number" ? val.toFixed(3) : val;
+};
+
 
 export default function CustomerLatencyDashboard({ customerType }: CustomerLatencyDashboardProps) {
   const [data, setData] = useState<ProcessedData[]>([]);
@@ -30,8 +38,8 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
   // Sample data with timestamp for fallback
   const sampleData: ProcessedData[] = useMemo(
     () => [
-      { requestId: 'REQ001', nmt: 0.12, llm: 1.25, tts: 0.45, total: 1.82, nmtUsage: 2, llmUsage: 500, ttsUsage: 10, timestamp: '2025-08-26T04:46:12.083990+00:00' },
-      { requestId: 'REQ002', nmt: 0.15, llm: 1.1, tts: 0.4, total: 1.65, nmtUsage: 3, llmUsage: 450, ttsUsage: 8, timestamp: '2025-08-26T04:47:15.083990+00:00' }
+      { requestId: 'REQ001', nmt: 0.12, llm: 1.25, tts: 0.45, total: 1.82, nmtUsage: 2, llmUsage: 500, ttsUsage: 10, timestamp: '2025-08-26T04:46:12.083990+00:00' , langDetection: 0},
+      { requestId: 'REQ002', nmt: 0.15, llm: 1.1, tts: 0.4, total: 1.65, nmtUsage: 3, llmUsage: 450, ttsUsage: 8, timestamp: '2025-08-26T04:47:15.083990+00:00', langDetection: 0 }
     ],
     []
   );
@@ -46,6 +54,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
 
         const processed: ProcessedData[] = apiData.map((row) => ({
           requestId: row.requestid.slice(0, 8),
+          langDetection: parseFloat(row.langdetectionlatency.replace('ms','')) / 1000, // new
           nmt: parseFloat(row.nmtlatency.replace('ms', '')) / 1000,
           llm: parseFloat(row.llmlatency.replace('ms', '')) / 1000,
           tts: row.ttslatency ? parseFloat(row.ttslatency.replace('ms', '')) / 1000 : undefined,
@@ -55,6 +64,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
           ttsUsage: row.ttsusage ? parseInt(row.ttsusage, 10) : undefined,
           timestamp: row.timestamp
         }));
+
 
         setData(processed);
         setUseSample(false);
@@ -121,6 +131,7 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
                     <TableHead className="text-xs">NMT (s)</TableHead>               
                     <TableHead className="text-xs">LLM (s)</TableHead>
                     {customerType === 'cust1' && <TableHead className="text-xs">TTS (s)</TableHead>}
+                    <TableHead className="text-xs">Lang Detection (s)</TableHead>
                     <TableHead className="text-xs">NMT (character)</TableHead>
                     <TableHead className="text-xs">LLM (token)</TableHead>
                     {customerType === 'cust1' && <TableHead className="text-xs">TTS (character)</TableHead>}
@@ -132,13 +143,14 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
                     <TableRow key={row.requestId + idx} className="text-xs">
                       <TableCell className="font-mono">{row.requestId}</TableCell>
                       <TableCell className="hidden sm:table-cell text-xs">{formatTimestamp(row.timestamp)}</TableCell>
-                      <TableCell>{row.nmt.toFixed(3)}</TableCell>
-                      <TableCell>{row.llm.toFixed(3)}</TableCell>
-                      {customerType === 'cust1' && <TableCell>{row.tts?.toFixed(3) ?? 'N/A'}</TableCell>}
-                      <TableCell>{row.nmtUsage}</TableCell>
-                      <TableCell>{row.llmUsage}</TableCell>
-                      {customerType === 'cust1' && <TableCell>{row.ttsUsage ?? 'N/A'}</TableCell>}
-                      <TableCell className="font-semibold">{row.total.toFixed(3)}</TableCell>
+                      <TableCell>{displayValue(row.nmt.toFixed(3))}</TableCell>
+                      <TableCell>{displayValue(row.llm.toFixed(3))}</TableCell>
+                      {customerType === 'cust1' && <TableCell>{displayValue(row.tts?.toFixed(3)) ?? 'N/A'}</TableCell>}
+                      <TableCell>{displayValue(row.langDetection)}</TableCell>
+                      <TableCell>{displayValue(row.nmtUsage)}</TableCell>
+                      <TableCell>{displayValue(row.llmUsage)}</TableCell>
+                      {customerType === 'cust1' && <TableCell>{displayValue(row.ttsUsage) ?? 'N/A'}</TableCell>}
+                      <TableCell className="font-semibold">{displayValue(row.total)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
