@@ -18,11 +18,11 @@ export interface LatencyData {
   requestId: string;
   customerName: string;
   customerApp: string;
-  langdetectionLatency: number;
-  nmtLatency: number;
-  llmLatency: number;
-  ttsLatency: number;
-  overallPipelineLatency: number;
+  langdetectionLatency: number | string | null;
+  nmtLatency: number | string | null;
+  llmLatency: number | string | null;
+  ttsLatency: number | string | null;
+  overallPipelineLatency: number | string | null;
   nmtUsage: number | string | null;
   llmUsage: number | string | null;
   ttsUsage: number | string | null;
@@ -33,26 +33,41 @@ interface LatencyAdminTableProps {
   data: LatencyData[];
 }
 
+// Convert ms → seconds safely, handle "none" as "-"
 const msToSec = (val: string | number | null) => {
-  if (!val) return "-";
-  const num = typeof val === "string" ? parseFloat(val.toString().replace("ms", "")) : val;
-  if (!num || num === 0) return "-";
-  return (num / 1000).toFixed(3);
+  if (val === null || val === undefined) return "-";
+  if (typeof val === "string") {
+    if (val.toLowerCase() === "none") return "-";
+    const num = parseFloat(val.replace("ms", ""));
+    if (!num || num === 0) return "-";
+    return (num / 1000).toFixed(3);
+  }
+  if (val === 0) return "-";
+  return (val / 1000).toFixed(3);
 };
 
+// Format usage values, handle "none" as "-"
 const formatValue = (val: string | number | null) => {
-  if (val === null || val === undefined || val === "none" || val === 0 || val === "0") return "-";
+  if (
+    val === null ||
+    val === undefined ||
+    val === 0 ||
+    val === "0" ||
+    (typeof val === "string" && val.toLowerCase() === "none")
+  ) {
+    return "-";
+  }
   return val;
 };
 
 const formatChartData = (data: LatencyData[]) =>
   data.slice(0, 10).map(item => ({
     name: item.requestId.substring(0, 8),
-    langDetection: item.langdetectionLatency / 1000,
-    nmt: item.nmtLatency / 1000,
-    llm: item.llmLatency / 1000,
-    tts: item.ttsLatency / 1000,
-    overall: item.overallPipelineLatency / 1000,
+    langDetection: typeof item.langdetectionLatency === "number" ? item.langdetectionLatency / 1000 : 0,
+    nmt: typeof item.nmtLatency === "number" ? item.nmtLatency / 1000 : 0,
+    llm: typeof item.llmLatency === "number" ? item.llmLatency / 1000 : 0,
+    tts: typeof item.ttsLatency === "number" ? item.ttsLatency / 1000 : 0,
+    overall: typeof item.overallPipelineLatency === "number" ? item.overallPipelineLatency / 1000 : 0,
   }));
 
 export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {

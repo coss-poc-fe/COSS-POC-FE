@@ -55,23 +55,24 @@ const msToSeconds = (ms: number | null | undefined) => {
 
 const formatValue = (val: number | string | null | undefined) => {
   if (val === null || val === "none" || val === undefined || val === 0 || val === "0") return "-";
+  if (typeof val === "number") return val.toFixed(2);
   return val;
 };
 
 const formatLatencyChartData = (data: AggregateData[]) =>
   data.map(item => ({
     name: `${item.customerName}-${item.customerApp}`,
-    p90: item.p90_overallPipelineLatency / 1000,
-    p95: item.p95_overallPipelineLatency / 1000,
-    p99: item.p99_overallPipelineLatency / 1000,
+    p90: parseFloat((item.p90_overallPipelineLatency / 1000).toFixed(2)),
+    p95: parseFloat((item.p95_overallPipelineLatency / 1000).toFixed(2)),
+    p99: parseFloat((item.p99_overallPipelineLatency / 1000).toFixed(2)),
   }));
 
 const formatUsageChartData = (data: AggregateData[]) =>
   data.map(item => ({
     name: `${item.customerName}-${item.customerApp}`,
-    nmt: item.nmtUsage,
-    llm: item.llmUsage,
-    tts: item.ttsUsage,
+    nmt: parseFloat(item.nmtUsage.toFixed(2)),
+    llm: parseFloat(item.llmUsage.toFixed(2)),
+    tts: parseFloat(item.ttsUsage.toFixed(2)),
   }));
 
 const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
