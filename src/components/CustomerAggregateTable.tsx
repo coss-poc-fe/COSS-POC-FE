@@ -15,13 +15,13 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 export interface AggregateData {
   customerName: string;
   customerApp: string;
-  // Existing metrics
+
   langdetectionLatency: number;
   nmtLatency: number;
   llmLatency: number;
   ttsLatency: number;
   overallPipelineLatency: number;
-  // P90, P95, P99 metrics
+
   p90_langdetectionLatency: number;
   p95_langdetectionLatency: number;
   p99_langdetectionLatency: number;
@@ -37,7 +37,7 @@ export interface AggregateData {
   p90_overallPipelineLatency: number;
   p95_overallPipelineLatency: number;
   p99_overallPipelineLatency: number;
-  // Usage metrics
+
   nmtUsage: number;
   llmUsage: number;
   ttsUsage: number;
@@ -48,7 +48,15 @@ interface CustomerAggregateProps {
 }
 
 // Utility functions
-const msToSeconds = (ms: number) => (ms / 1000).toFixed(2);
+const msToSeconds = (ms: number | null | undefined) => {
+  if (!ms || ms === 0) return "-";
+  return (ms / 1000).toFixed(2);
+};
+
+const formatValue = (val: number | string | null | undefined) => {
+  if (val === null || val === "none" || val === undefined || val === 0 || val === "0") return "-";
+  return val;
+};
 
 const formatLatencyChartData = (data: AggregateData[]) =>
   data.map(item => ({
@@ -104,8 +112,8 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                     ];
                     return latencies.map((lat, i) => (
                       <TableRow key={`lat-${idx}-${i}`} className={(idx + i) % 2 === 0 ? "bg-muted/30" : ""}>
-                        {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerName}</TableCell>}
-                        {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerApp}</TableCell>}
+                        {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerName || "-"}</TableCell>}
+                        {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerApp || "-"}</TableCell>}
                         <TableCell>{lat.name}</TableCell>
                         <TableCell>{msToSeconds(lat.p90)}</TableCell>
                         <TableCell>{msToSeconds(lat.p95)}</TableCell>
@@ -148,19 +156,19 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                   <TableRow>
                     <TableHead>Customer Name</TableHead>
                     <TableHead>App</TableHead>
-                    <TableHead>NMT(Characters)</TableHead>
-                    <TableHead>LLM(tokens)</TableHead>
-                    <TableHead>TTS(Characters)</TableHead>
+                    <TableHead>NMT (Characters)</TableHead>
+                    <TableHead>LLM (Tokens)</TableHead>
+                    <TableHead>TTS (Characters)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.map((row, idx) => (
                     <TableRow key={`usage-${idx}`} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
-                      <TableCell>{row.customerName}</TableCell>
-                      <TableCell>{row.customerApp}</TableCell>
-                      <TableCell>{row.nmtUsage}</TableCell>
-                      <TableCell>{row.llmUsage}</TableCell>
-                      <TableCell>{row.ttsUsage}</TableCell>
+                      <TableCell>{row.customerName || "-"}</TableCell>
+                      <TableCell>{row.customerApp || "-"}</TableCell>
+                      <TableCell>{formatValue(row.nmtUsage)}</TableCell>
+                      <TableCell>{formatValue(row.llmUsage)}</TableCell>
+                      <TableCell>{formatValue(row.ttsUsage)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

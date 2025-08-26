@@ -34,9 +34,15 @@ interface LatencyAdminTableProps {
 }
 
 const msToSec = (val: string | number | null) => {
-  if (!val) return 0;
+  if (!val) return "-";
   const num = typeof val === "string" ? parseFloat(val.toString().replace("ms", "")) : val;
+  if (!num || num === 0) return "-";
   return (num / 1000).toFixed(3);
+};
+
+const formatValue = (val: string | number | null) => {
+  if (val === null || val === undefined || val === "none" || val === 0 || val === "0") return "-";
+  return val;
 };
 
 const formatChartData = (data: LatencyData[]) =>
@@ -82,15 +88,15 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                   <TableRow key={row.requestId} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
                     <TableCell className="font-mono text-xs">{row.requestId.substring(0, 8)}...</TableCell>
                     <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
-                    <TableCell>{row.customerName}</TableCell>
+                    <TableCell>{row.customerName || "-"}</TableCell>
                     <TableCell>{msToSec(row.langdetectionLatency)}</TableCell>
                     <TableCell>{msToSec(row.nmtLatency)}</TableCell>
                     <TableCell>{msToSec(row.llmLatency)}</TableCell>
                     <TableCell>{msToSec(row.ttsLatency)}</TableCell>
                     <TableCell className="font-medium">{msToSec(row.overallPipelineLatency)}</TableCell>
-                    <TableCell>{row.nmtUsage ?? "0"}</TableCell>
-                    <TableCell>{row.llmUsage ?? "0"}</TableCell>
-                    <TableCell>{row.ttsUsage ?? "0"}</TableCell>
+                    <TableCell>{formatValue(row.nmtUsage)}</TableCell>
+                    <TableCell>{formatValue(row.llmUsage)}</TableCell>
+                    <TableCell>{formatValue(row.ttsUsage)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
