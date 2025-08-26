@@ -266,6 +266,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
               <TableHeader className="sticky top-0 bg-muted">
                 <TableRow>
                   <TableHead>Request ID</TableHead>
+                  <TableHead>Timestamp</TableHead>
                   <TableHead>Customer Name</TableHead>
                   <TableHead>NMT (Characters)</TableHead>
                   <TableHead>LLM (Tokens)</TableHead>
@@ -281,6 +282,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                     <TableCell className="font-mono text-xs">
                       {row.requestId.substring(0, 8)}...
                     </TableCell>
+                    <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
                     <TableCell>{row.customerName || "-"}</TableCell>
                     <TableCell>{formatValue(row.nmtUsage)}</TableCell>
                     <TableCell>{formatValue(row.llmUsage)}</TableCell>
