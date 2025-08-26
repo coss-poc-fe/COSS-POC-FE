@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
-// Import your existing components
 import LatencyAdminTable, { LatencyData } from "@/components/LatencyAdminTable";
 import CustomerAggregateTable, { AggregateData } from "@/components/CustomerAggregateTable";
 
@@ -20,11 +19,6 @@ interface ApiResponseItem {
   timestamp: string;
 }
 
-interface CustomerAggregateResponse {
-  aggregates: AggregateData[];
-}
-
-// Mock fallback data for aggregates
 const mockAggregateData: AggregateData[] = [
   {
     customerName: "AcmeCorp",
@@ -37,19 +31,22 @@ const mockAggregateData: AggregateData[] = [
     nmtUsage: 12.34,
     llmUsage: 23.45,
     ttsUsage: 34.56,
-  },
-  {
-    customerName: "AcmeCorp",
-    customerApp: "web",
-    langdetectionLatency: 111.11,
-    nmtLatency: 222.22,
-    llmLatency: 333.33,
-    ttsLatency: 444.44,
-    overallPipelineLatency: 555.55,
-    nmtUsage: 10.0,
-    llmUsage: 20.0,
-    ttsUsage: 30.0,
-  },
+    p90_langdetectionLatency: 0,
+    p95_langdetectionLatency: 0,
+    p99_langdetectionLatency: 0,
+    p90_nmtLatency: 1669,
+    p95_nmtLatency: 1669,
+    p99_nmtLatency: 1669,
+    p90_llmLatency: 1737,
+    p95_llmLatency: 1737,
+    p99_llmLatency: 1737,
+    p90_ttsLatency: 2420,
+    p95_ttsLatency: 2420,
+    p99_ttsLatency: 2420,
+    p90_overallPipelineLatency: 5828,
+    p95_overallPipelineLatency: 5828,
+    p99_overallPipelineLatency: 5828,
+  }
 ];
 
 export default function AdminPage() {
@@ -61,9 +58,9 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'aggregate' | 'latency'>('aggregate');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // Fetch latency data
+  // Fetch latency data (raw requests)
   useEffect(() => {
-    async function fetchData() {
+    async function fetchLatency() {
       try {
         const response = await fetch("/api/globalmetrices");
         if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
@@ -83,35 +80,71 @@ export default function AdminPage() {
 
         setLatencyData(formattedData);
       } catch (error) {
-        console.error(error);
+        console.error("Latency fetch error:", error);
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
+
+    fetchLatency();
   }, []);
 
-  // Fetch aggregate data
+  // Fetch aggregate data with p90/p95/p99
   useEffect(() => {
     async function fetchAggregate() {
       try {
-        const response = await fetch("/api/customer-aggregate");
+        const response = await fetch("/api/customer-aggregate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customerName: "cust1" }),
+        });
+
         if (!response.ok) throw new Error(`Failed to fetch aggregate: ${response.status}`);
-        const data: CustomerAggregateResponse = await response.json();
-        setAggregateData(data.aggregates);
+        const data = await response.json();
+
+        const transformed: AggregateData[] = (data.aggregates || []).map((item: any) => ({
+          customerName: item.customerName,
+          customerApp: item.customerApp,
+          langdetectionLatency: item.avg_langdetectionLatency ?? 0,
+          nmtLatency: item.avg_nmtLatency ?? 0,
+          llmLatency: item.avg_llmLatency ?? 0,
+          ttsLatency: item.avg_ttsLatency ?? 0,
+          overallPipelineLatency: item.avg_overallPipelineLatency ?? 0,
+          nmtUsage: item.avg_nmtUsage ?? 0,
+          llmUsage: item.avg_llmUsage ?? 0,
+          ttsUsage: item.avg_ttsUsage ?? 0,
+          p90_langdetectionLatency: item.p90_langdetectionLatency ?? 0,
+          p95_langdetectionLatency: item.p95_langdetectionLatency ?? 0,
+          p99_langdetectionLatency: item.p99_langdetectionLatency ?? 0,
+          p90_nmtLatency: item.p90_nmtLatency ?? 0,
+          p95_nmtLatency: item.p95_nmtLatency ?? 0,
+          p99_nmtLatency: item.p99_nmtLatency ?? 0,
+          p90_llmLatency: item.p90_llmLatency ?? 0,
+          p95_llmLatency: item.p95_llmLatency ?? 0,
+          p99_llmLatency: item.p99_llmLatency ?? 0,
+          p90_ttsLatency: item.p90_ttsLatency ?? 0,
+          p95_ttsLatency: item.p95_ttsLatency ?? 0,
+          p99_ttsLatency: item.p99_ttsLatency ?? 0,
+          p90_overallPipelineLatency: item.p90_overallPipelineLatency ?? 0,
+          p95_overallPipelineLatency: item.p95_overallPipelineLatency ?? 0,
+          p99_overallPipelineLatency: item.p99_overallPipelineLatency ?? 0,
+        }));
+
+        setAggregateData(transformed);
       } catch (error) {
-        console.error(error);
-        setAggregateData(mockAggregateData); // fallback
+        console.error("Aggregate fetch error:", error);
+        setAggregateData(mockAggregateData);
       } finally {
         setLoadingAggregate(false);
       }
     }
+
     fetchAggregate();
   }, []);
 
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden">
-      {/* Mobile Menu Button */}
+      {/* Mobile Toggle Button */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <Button
           onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
@@ -124,23 +157,26 @@ export default function AdminPage() {
       </div>
 
       {/* Sidebar */}
-      <aside className={`
-        ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 transition-transform duration-300 ease-in-out
-        fixed lg:relative z-40 w-64 lg:w-70 bg-white shadow-md 
-        flex flex-col justify-between p-4 lg:p-7 border-r border-slate-200
-        h-full
-      `}>
-        {/* Overlay for mobile */}
+      <aside
+        className={`
+          ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0 transition-transform duration-300 ease-in-out
+          fixed lg:relative z-40 w-64 lg:w-70 bg-white shadow-md 
+          flex flex-col justify-between p-4 lg:p-7 border-r border-slate-200
+          h-full
+        `}
+      >
         {isMobileSidebarOpen && (
-          <div 
+          <div
             className="lg:hidden fixed inset-0 bg-white bg-opacity-50 -z-10"
             onClick={() => setIsMobileSidebarOpen(false)}
           />
         )}
-        
+
         <div>
-          <h1 className="text-lg lg:text-xl font-bold mb-6 lg:mb-9 text-slate-800">ADMIN PANEL</h1>
+          <h1 className="text-lg lg:text-xl font-bold mb-6 lg:mb-9 text-slate-800">
+            ADMIN PANEL
+          </h1>
           <nav className="flex flex-col gap-3">
             <button
               onClick={() => {
@@ -148,8 +184,8 @@ export default function AdminPage() {
                 setIsMobileSidebarOpen(false);
               }}
               className={`text-left p-2 rounded transition-colors ${
-                activeTab === 'aggregate' 
-                  ? 'bg-slate-50 text-slate-800 font-semibold' 
+                activeTab === 'aggregate'
+                  ? 'bg-slate-50 text-slate-800 font-semibold'
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
@@ -161,8 +197,8 @@ export default function AdminPage() {
                 setIsMobileSidebarOpen(false);
               }}
               className={`text-left p-2 rounded transition-colors ${
-                activeTab === 'latency' 
-                  ? 'bg-slate-50 text-slate-800 font-semibold' 
+                activeTab === 'latency'
+                  ? 'bg-slate-50 text-slate-800 font-semibold'
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
@@ -172,21 +208,19 @@ export default function AdminPage() {
         </div>
 
         <div>
-          <Button 
-            onClick={() => router.push("/customer/customer1")} 
+          <Button
+            onClick={() => router.push("/customer/customer1")}
             className="w-full bg-slate-900 hover:bg-slate-700 text-white"
           >
             Switch to Customer View
           </Button>
         </div>
       </aside>
-      
+
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 h-full">
-        {/* Mobile header space */}
         <div className="lg:hidden h-16 flex-shrink-0"></div>
-        
-        {/* Content Area */}
+
         <div className="flex-1 flex flex-col min-h-0 p-2 sm:p-4 overflow-auto">
           {activeTab === 'aggregate' && (
             <div className="flex-1 flex flex-col min-h-0">

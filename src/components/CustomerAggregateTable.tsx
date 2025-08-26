@@ -15,11 +15,29 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 export interface AggregateData {
   customerName: string;
   customerApp: string;
+  // Existing metrics
   langdetectionLatency: number;
   nmtLatency: number;
   llmLatency: number;
   ttsLatency: number;
   overallPipelineLatency: number;
+  // P90, P95, P99 metrics
+  p90_langdetectionLatency: number;
+  p95_langdetectionLatency: number;
+  p99_langdetectionLatency: number;
+  p90_nmtLatency: number;
+  p95_nmtLatency: number;
+  p99_nmtLatency: number;
+  p90_llmLatency: number;
+  p95_llmLatency: number;
+  p99_llmLatency: number;
+  p90_ttsLatency: number;
+  p95_ttsLatency: number;
+  p99_ttsLatency: number;
+  p90_overallPipelineLatency: number;
+  p95_overallPipelineLatency: number;
+  p99_overallPipelineLatency: number;
+  // Usage metrics
   nmtUsage: number;
   llmUsage: number;
   ttsUsage: number;
@@ -29,15 +47,15 @@ interface CustomerAggregateProps {
   data: AggregateData[];
 }
 
-// Chart formatters
+// Utility functions
+const msToSeconds = (ms: number) => (ms / 1000).toFixed(2);
+
 const formatLatencyChartData = (data: AggregateData[]) =>
   data.map(item => ({
     name: `${item.customerName}-${item.customerApp}`,
-    langDetection: item.langdetectionLatency / 1000,
-    nmt: item.nmtLatency / 1000,
-    llm: item.llmLatency / 1000,
-    tts: item.ttsLatency / 1000,
-    overall: item.overallPipelineLatency / 1000,
+    p90: item.p90_overallPipelineLatency / 1000,
+    p95: item.p95_overallPipelineLatency / 1000,
+    p99: item.p99_overallPipelineLatency / 1000,
   }));
 
 const formatUsageChartData = (data: AggregateData[]) =>
@@ -49,51 +67,56 @@ const formatUsageChartData = (data: AggregateData[]) =>
   }));
 
 const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
-  if (!data || data.length === 0) return <p>No data available</p>;
+  if (!data?.length) return <p>No data available</p>;
 
   const latencyChartData = formatLatencyChartData(data);
   const usageChartData = formatUsageChartData(data);
 
   return (
     <div className="flex w-full h-screen gap-4 p-4 overflow-hidden">
-      {/* Left Container */}
+      {/* Latency Container */}
       <div className="flex-1 flex flex-col h-full">
         <Card className="shadow-lg rounded-2xl h-full flex flex-col">
           <CardHeader className="pb-2">
-            <CardTitle>Latency Metrics</CardTitle>
+            <CardTitle>Latency Metrics (p90/p95/p99)</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 flex-1 overflow-hidden">
-            {/* Table */}
             <div className="overflow-auto flex-1 border rounded-md">
               <Table>
                 <TableHeader className="sticky top-0 bg-muted">
                   <TableRow>
-                    <TableHead className="font-bold">Customer Name</TableHead>
-                    <TableHead className="font-bold">App</TableHead>
-                    <TableHead className="font-bold">Lang Detection (s)</TableHead>
-                    <TableHead className="font-bold">NMT (s)</TableHead>
-                    <TableHead className="font-bold">LLM (s)</TableHead>
-                    <TableHead className="font-bold">TTS (s)</TableHead>
-                    <TableHead className="font-bold">Overall (s)</TableHead>
+                    <TableHead>Customer Name</TableHead>
+                    <TableHead>App</TableHead>
+                    <TableHead>Latency Type</TableHead>
+                    <TableHead>p90 (s)</TableHead>
+                    <TableHead>p95 (s)</TableHead>
+                    <TableHead>p99 (s)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.map((row, idx) => (
-                    <TableRow key={`latency-${idx}`} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
-                      <TableCell>{row.customerName}</TableCell>
-                      <TableCell>{row.customerApp}</TableCell>
-                      <TableCell>{(row.langdetectionLatency / 1000).toFixed(2)}</TableCell>
-                      <TableCell>{(row.nmtLatency / 1000).toFixed(2)}</TableCell>
-                      <TableCell>{(row.llmLatency / 1000).toFixed(2)}</TableCell>
-                      <TableCell>{(row.ttsLatency / 1000).toFixed(2)}</TableCell>
-                      <TableCell className="font-medium">{(row.overallPipelineLatency / 1000).toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
+                  {data.map((row, idx) => {
+                    const latencies = [
+                      { name: "Lang Detection", p90: row.p90_langdetectionLatency, p95: row.p95_langdetectionLatency, p99: row.p99_langdetectionLatency },
+                      { name: "NMT", p90: row.p90_nmtLatency, p95: row.p95_nmtLatency, p99: row.p99_nmtLatency },
+                      { name: "LLM", p90: row.p90_llmLatency, p95: row.p95_llmLatency, p99: row.p99_llmLatency },
+                      { name: "TTS", p90: row.p90_ttsLatency, p95: row.p95_ttsLatency, p99: row.p99_ttsLatency },
+                      { name: "Overall", p90: row.p90_overallPipelineLatency, p95: row.p95_overallPipelineLatency, p99: row.p99_overallPipelineLatency },
+                    ];
+                    return latencies.map((lat, i) => (
+                      <TableRow key={`lat-${idx}-${i}`} className={(idx + i) % 2 === 0 ? "bg-muted/30" : ""}>
+                        {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerName}</TableCell>}
+                        {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerApp}</TableCell>}
+                        <TableCell>{lat.name}</TableCell>
+                        <TableCell>{msToSeconds(lat.p90)}</TableCell>
+                        <TableCell>{msToSeconds(lat.p95)}</TableCell>
+                        <TableCell>{msToSeconds(lat.p99)}</TableCell>
+                      </TableRow>
+                    ));
+                  })}
                 </TableBody>
               </Table>
             </div>
 
-            {/* Latency Chart */}
             <div className="h-[250px] min-h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={latencyChartData}>
@@ -102,10 +125,9 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="langDetection" fill="#8884d8" name="Lang Detection" />
-                  <Bar dataKey="nmt" fill="#82ca9d" name="NMT" />
-                  <Bar dataKey="llm" fill="#ffc658" name="LLM" />
-                  <Bar dataKey="tts" fill="#ff8042" name="TTS" />
+                  <Bar dataKey="p90" fill="#8884d8" name="p90" />
+                  <Bar dataKey="p95" fill="#82ca9d" name="p95" />
+                  <Bar dataKey="p99" fill="#ffc658" name="p99" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -113,23 +135,22 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
         </Card>
       </div>
 
-      {/* Right Container */}
+      {/* Usage Container */}
       <div className="flex-1 flex flex-col h-full">
         <Card className="shadow-lg rounded-2xl h-full flex flex-col">
           <CardHeader className="pb-2">
             <CardTitle>Usage Metrics</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 flex-1 overflow-hidden">
-            {/* Table */}
             <div className="overflow-auto flex-1 border rounded-md">
               <Table>
                 <TableHeader className="sticky top-0 bg-muted">
                   <TableRow>
-                    <TableHead className="font-bold">Customer Name</TableHead>
-                    <TableHead className="font-bold">App</TableHead>
-                    <TableHead className="font-bold">NMT Usage</TableHead>
-                    <TableHead className="font-bold">LLM Usage (tokens)</TableHead>
-                    <TableHead className="font-bold">TTS Usage</TableHead>
+                    <TableHead>Customer Name</TableHead>
+                    <TableHead>App</TableHead>
+                    <TableHead>NMT Usage</TableHead>
+                    <TableHead>LLM Usage (tokens)</TableHead>
+                    <TableHead>TTS Usage</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -146,7 +167,6 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
               </Table>
             </div>
 
-            {/* Usage Chart */}
             <div className="h-[250px] min-h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={usageChartData}>
