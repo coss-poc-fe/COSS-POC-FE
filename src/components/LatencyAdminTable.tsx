@@ -53,6 +53,25 @@ const formatValue = (val: number | string | null) => {
   return val;
 };
 
+const formatTimestamp = (ts: string) => {
+  if (!ts) return "-";
+
+  const fixedTs = ts.replace(/\.(\d{3})\d+/, '.$1');
+
+  const date = new Date(fixedTs + 'Z');
+
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: 'Asia/Kolkata', // IST
+    hour12: true,
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  };
+  return new Intl.DateTimeFormat('en-IN', options).format(date);
+};
+
 // Preprocess data to replace "none" with "-"
 const normalizeData = (data: LatencyData[]): LatencyData[] =>
   data.map((item) => ({
@@ -118,7 +137,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                 {normalizedData.map((row, idx) => (
                   <TableRow key={row.requestId} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
                     <TableCell className="font-mono text-xs">{row.requestId.substring(0, 8)}...</TableCell>
-                    <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
+                    <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
                     <TableCell>{row.customerName || "-"}</TableCell>
                     <TableCell>{msToSec(row.langdetectionLatency)}</TableCell>
                     <TableCell>{msToSec(row.nmtLatency)}</TableCell>

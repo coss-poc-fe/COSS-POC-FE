@@ -23,11 +23,32 @@ interface CustomerLatencyDashboardProps {
   customerType: 'cust1' | 'cust2';
 }
 
-// Utility to display value or '-' if zero, undefined, or "None"
+// Display value with 3 decimal precision
 const displayValue = (val: number | undefined | string) => {
   if (val === undefined || val === 0 || val === "None") return "-";
   return typeof val === "number" ? val.toFixed(3) : val;
 };
+
+const formatTimestamp = (ts: string) => {
+  if (!ts) return "-";
+
+  const fixedTs = ts.replace(/\.(\d{3})\d+/, '.$1');
+
+  const date = new Date(fixedTs + 'Z');
+
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: 'Asia/Kolkata', // IST
+    hour12: true,
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  };
+  return new Intl.DateTimeFormat('en-IN', options).format(date);
+};
+
+
 
 export default function CustomerLatencyDashboard({ customerType }: CustomerLatencyDashboardProps) {
   const [data, setData] = useState<ProcessedData[]>([]);
@@ -59,7 +80,6 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
           timestamp: row.timestamp
         }));
 
-
         setData(processed);
         setUseSample(false);
       } catch (err) {
@@ -77,17 +97,6 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
     data.map((row) => customerType === 'cust2' ? { ...row, tts: undefined, ttsUsage: undefined, total: row.nmt + row.llm } : row),
     [data, customerType]
   );
-
-  const formatTimestamp = (ts: string) => {
-    const date = new Date(ts);
-    return date.toLocaleString('en-IN', {
-      hour12: true,
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   return (
     <div className="h-full flex flex-col gap-3 overflow-hidden">
