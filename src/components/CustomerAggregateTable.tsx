@@ -87,7 +87,7 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                   <TableRow>
                     <TableHead>Customer Name</TableHead>
                     <TableHead>App</TableHead>
-                    <TableHead>Latency Type</TableHead>
+                    <TableHead>Services</TableHead>
                     <TableHead>p90 (s)</TableHead>
                     <TableHead>p95 (s)</TableHead>
                     <TableHead>p99 (s)</TableHead>
@@ -148,9 +148,9 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                   <TableRow>
                     <TableHead>Customer Name</TableHead>
                     <TableHead>App</TableHead>
-                    <TableHead>NMT Usage</TableHead>
-                    <TableHead>LLM Usage (tokens)</TableHead>
-                    <TableHead>TTS Usage</TableHead>
+                    <TableHead>NMT(Characters)</TableHead>
+                    <TableHead>LLM(tokens)</TableHead>
+                    <TableHead>TTS(Characters)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
