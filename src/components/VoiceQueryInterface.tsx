@@ -35,68 +35,75 @@ export default function VoiceQueryInterface({ customerType = "customer1" }) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
-  const handleProcessTextQuery = async () => {
-    if (!queryText.trim()) return setError("Please enter a message");
+const handleProcessTextQuery = async () => {
+  if (!queryText.trim()) return setError("Please enter a message");
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: "user",
-      content: queryText.trim(),
-      timestamp: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/processPipeline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerName: customerType,
-          customerAppName: "FleetAnalyticsApp",
-          input: { text: queryText.trim(), language: "en" },
-        }),
-      });
-
-      if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
-      const data: PipelineApiResponse = await response.json();
-
-      if (customerType === "cust1" && data.pipelineOutput.TTS) {
-        const binary = atob(data.pipelineOutput.TTS);
-        const arrayBuffer = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) arrayBuffer[i] = binary.charCodeAt(i);
-        const audioBlob = new Blob([arrayBuffer], { type: "audio/wav" });
-        const audioUrl = URL.createObjectURL(audioBlob);
-
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: (Date.now() + 1).toString(),
-            type: "audio",
-            content: "Audio Response",
-            timestamp: new Date().toISOString(),
-            audioUrl,
-          },
-        ]);
-      } else if (customerType === "cust2" && data.pipelineOutput.LLM) {
-  const aiMessage: ChatMessage = {
-    id: (Date.now() + 1).toString(),
-    type: "ai",
-    content: data.pipelineOutput.LLM || "No response",
+  const userMessage: ChatMessage = {
+    id: Date.now().toString(),
+    type: "user",
+    content: queryText.trim(),
     timestamp: new Date().toISOString(),
   };
-  setMessages((prev) => [...prev, aiMessage]);
-}
+  setMessages((prev) => [...prev, userMessage]);
+  setIsLoading(true);
+  setError(null);
 
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error occurred");
-    } finally {
-      setIsLoading(false);
-      setQueryText("");
-      setTimeout(scrollToBottom, 100);
+  try {
+    // Map customerType to customerAppName dynamically
+    const customerAppName =
+      customerType === "cust1" ? "Customer1App" :
+      customerType === "cust2" ? "Customer2App" :
+      "defaultApp";
+
+    const response = await fetch("/api/processPipeline", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: customerType,
+        customerAppName: customerAppName,  // now dynamic
+        input: { text: queryText.trim(), language: "en" },
+      }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP error! ${response.status}`);
+    const data: PipelineApiResponse = await response.json();
+
+    if (customerType === "cust1" && data.pipelineOutput.TTS) {
+      const binary = atob(data.pipelineOutput.TTS);
+      const arrayBuffer = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) arrayBuffer[i] = binary.charCodeAt(i);
+      const audioBlob = new Blob([arrayBuffer], { type: "audio/wav" });
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          type: "audio",
+          content: "Audio Response",
+          timestamp: new Date().toISOString(),
+          audioUrl,
+        },
+      ]);
+    } else if (customerType === "cust2" && data.pipelineOutput.LLM) {
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: "ai",
+        content: data.pipelineOutput.LLM || "No response",
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
     }
-  };
+
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Unknown error occurred");
+  } finally {
+    setIsLoading(false);
+    setQueryText("");
+    setTimeout(scrollToBottom, 100);
+  }
+};
+
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
