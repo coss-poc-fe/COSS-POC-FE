@@ -204,7 +204,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                     className={idx % 2 === 0 ? "bg-muted/30" : ""}
                   >
                     <TableCell className="font-mono text-xs">
-                      {row.requestId.substring(0, 8)}...
+                      <div title={row.requestId}>{row.requestId.substring(0, 8)}...</div>
                     </TableCell>
                     <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
                     <TableCell>{row.customerName || "-"}</TableCell>
@@ -280,7 +280,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                     className={idx % 2 === 0 ? "bg-muted/30" : ""}
                   >
                     <TableCell className="font-mono text-xs">
-                      {row.requestId.substring(0, 8)}...
+                      <div title={row.requestId}>{row.requestId.substring(0, 8)}...</div>
                     </TableCell>
                     <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
                     <TableCell>{row.customerName || "-"}</TableCell>
