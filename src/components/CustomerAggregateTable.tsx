@@ -16,32 +16,48 @@ export interface AggregateData {
   customerName: string;
   customerApp: string;
 
+  // Latency metrics
   langdetectionLatency: number;
   nmtLatency: number;
   llmLatency: number;
+  backnmtLatency: number;
   ttsLatency: number;
   overallPipelineLatency: number;
 
+  // Usage metrics
+  nmtUsage: number;
+  llmUsage: number;
+  backnmtUsage: number;
+  ttsUsage: number;
+
+  // P90/P95/P99 metrics
   p90_langdetectionLatency: number;
   p95_langdetectionLatency: number;
   p99_langdetectionLatency: number;
+
   p90_nmtLatency: number;
   p95_nmtLatency: number;
   p99_nmtLatency: number;
+
   p90_llmLatency: number;
   p95_llmLatency: number;
   p99_llmLatency: number;
+
+  p90_backnmtLatency: number;
+  p95_backnmtLatency: number;
+  p99_backnmtLatency: number;
+
   p90_ttsLatency: number;
   p95_ttsLatency: number;
   p99_ttsLatency: number;
+
   p90_overallPipelineLatency: number;
   p95_overallPipelineLatency: number;
   p99_overallPipelineLatency: number;
-
-  nmtUsage: number;
-  llmUsage: number;
-  ttsUsage: number;
 }
+
+
+
 
 interface CustomerAggregateProps {
   data: AggregateData[];
@@ -108,9 +124,12 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                       { name: "Lang Detection", p90: row.p90_langdetectionLatency, p95: row.p95_langdetectionLatency, p99: row.p99_langdetectionLatency },
                       { name: "NMT", p90: row.p90_nmtLatency, p95: row.p95_nmtLatency, p99: row.p99_nmtLatency },
                       { name: "LLM", p90: row.p90_llmLatency, p95: row.p95_llmLatency, p99: row.p99_llmLatency },
+                      { name: "NMT (Back Translation)", p90: row.p90_backnmtLatency, p95: row.p95_backnmtLatency, p99: row.p99_backnmtLatency }, // ✅ Added here
                       { name: "TTS", p90: row.p90_ttsLatency, p95: row.p95_ttsLatency, p99: row.p99_ttsLatency },
                       { name: "Overall", p90: row.p90_overallPipelineLatency, p95: row.p95_overallPipelineLatency, p99: row.p99_overallPipelineLatency },
                     ];
+
+
                     return latencies.map((lat, i) => (
                       <TableRow key={`lat-${idx}-${i}`} className={(idx + i) % 2 === 0 ? "" : ""}>
                         {i === 0 && <TableCell rowSpan={latencies.length}>{row.customerName || "-"}</TableCell>}
@@ -159,6 +178,7 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                     <TableHead>App</TableHead>
                     <TableHead>NMT (Characters)</TableHead>
                     <TableHead>LLM (Tokens)</TableHead>
+                    <TableHead>NMT (Back Translation)</TableHead> 
                     <TableHead>TTS (Characters)</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -169,6 +189,7 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                       <TableCell>{row.customerApp || "-"}</TableCell>
                       <TableCell>{formatValue(row.nmtUsage)}</TableCell>
                       <TableCell>{formatValue(row.llmUsage)}</TableCell>
+                      <TableCell>{formatValue(row.backnmtUsage)}</TableCell> 
                       <TableCell>{formatValue(row.ttsUsage)}</TableCell>
                     </TableRow>
                   ))}

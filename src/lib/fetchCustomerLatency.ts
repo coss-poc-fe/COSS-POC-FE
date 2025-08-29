@@ -5,10 +5,12 @@ export interface CustomerLatency {
   langdetectionlatency: string;
   nmtlatency: string;
   llmlatency: string;
+  backnmtlatency: string;
   ttslatency?: string; // Optional for cust2
   overallpipelinelatency: string;
   nmtusage: string;
   llmusage: string;
+  backnmtusage: string;
   ttsusage: string;
   timestamp: string;
 }

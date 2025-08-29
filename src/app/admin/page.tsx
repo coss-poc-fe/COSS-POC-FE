@@ -45,10 +45,12 @@ interface AggregateApiItem {
   avg_langdetectionLatency: number | null;
   avg_nmtLatency: number | null;
   avg_llmLatency: number | null;
+  avg_backNMTLatency: number | null; 
   avg_ttsLatency: number | null;
   avg_overallPipelineLatency: number | null;
   avg_nmtUsage: number | null;
   avg_llmUsage: number | null;
+  avg_backNMTUsage: number | null;
   avg_ttsUsage: number | null;
   p90_langdetectionLatency: number | null;
   p95_langdetectionLatency: number | null;
@@ -59,6 +61,9 @@ interface AggregateApiItem {
   p90_llmLatency: number | null;
   p95_llmLatency: number | null;
   p99_llmLatency: number | null;
+  p90_backNMTLatency: number | null;   
+  p95_backNMTLatency: number | null;
+  p99_backNMTLatency: number | null;
   p90_ttsLatency: number | null;
   p95_ttsLatency: number | null;
   p99_ttsLatency: number | null;
@@ -71,31 +76,48 @@ const mockAggregateData: AggregateData[] = [
   {
     customerName: "AcmeCorp",
     customerApp: "mobile",
+
+    // Latency
     langdetectionLatency: 123.45,
     nmtLatency: 456.78,
     llmLatency: 234.56,
+    backnmtLatency: 300.12,
     ttsLatency: 345.67,
     overallPipelineLatency: 789.12,
+
+    // Usage
     nmtUsage: 12.34,
     llmUsage: 23.45,
+    backnmtUsage: 15.67,
     ttsUsage: 34.56,
+
+    // P90/P95/P99
     p90_langdetectionLatency: 0,
     p95_langdetectionLatency: 0,
     p99_langdetectionLatency: 0,
+
     p90_nmtLatency: 1669,
     p95_nmtLatency: 1669,
     p99_nmtLatency: 1669,
+
     p90_llmLatency: 1737,
     p95_llmLatency: 1737,
     p99_llmLatency: 1737,
+
+    p90_backnmtLatency: 1800,
+    p95_backnmtLatency: 1850,
+    p99_backnmtLatency: 1900,
+
     p90_ttsLatency: 2420,
     p95_ttsLatency: 2420,
     p99_ttsLatency: 2420,
+
     p90_overallPipelineLatency: 5828,
     p95_overallPipelineLatency: 5828,
     p99_overallPipelineLatency: 5828,
   },
 ];
+
 
 export default function AdminPage() {
   const router = useRouter();
@@ -187,80 +209,85 @@ export default function AdminPage() {
   }, []);
 
   // ----------------- Fetch Aggregate -----------------
-  useEffect(() => {
-    async function fetchAggregate() {
-      try {
-        const customers = ["cust1", "cust2"];
-        const allData: AggregateData[] = [];
+  // ----------------- Fetch Aggregate -----------------
+useEffect(() => {
+  async function fetchAggregate() {
+    try {
+      const customers = ["cust1", "cust2"];
+      const allData: AggregateData[] = [];
 
-        for (const name of customers) {
-          const response = await fetch("/api/customer-aggregate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ customerName: name }),
-          });
+      for (const name of customers) {
+        const response = await fetch("/api/customer-aggregate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customerName: name }),
+        });
 
-          if (!response.ok) throw new Error(`Failed for ${name}`);
-          const data = await response.json();
+        if (!response.ok) throw new Error(`Failed for ${name}`);
+        const data = await response.json();
 
-          const transformed: AggregateData[] = (data.aggregates || []).map(
-            (item: AggregateApiItem) => ({
-              customerName: item.customerName,
-              customerApp: item.customerApp,
-              langdetectionLatency: Number(item.avg_langdetectionLatency ?? 0),
-              nmtLatency: Number(item.avg_nmtLatency ?? 0),
-              llmLatency: Number(item.avg_llmLatency ?? 0),
-              ttsLatency: Number(item.avg_ttsLatency ?? 0),
-              overallPipelineLatency: Number(
-                item.avg_overallPipelineLatency ?? 0
-              ),
-              nmtUsage: Number(item.avg_nmtUsage ?? 0),
-              llmUsage: Number(item.avg_llmUsage ?? 0),
-              ttsUsage: Number(item.avg_ttsUsage ?? 0),
-              p90_langdetectionLatency: Number(
-                item.p90_langdetectionLatency ?? 0
-              ),
-              p95_langdetectionLatency: Number(
-                item.p95_langdetectionLatency ?? 0
-              ),
-              p99_langdetectionLatency: Number(
-                item.p99_langdetectionLatency ?? 0
-              ),
-              p90_nmtLatency: Number(item.p90_nmtLatency ?? 0),
-              p95_nmtLatency: Number(item.p95_nmtLatency ?? 0),
-              p99_nmtLatency: Number(item.p99_nmtLatency ?? 0),
-              p90_llmLatency: Number(item.p90_llmLatency ?? 0),
-              p95_llmLatency: Number(item.p95_llmLatency ?? 0),
-              p99_llmLatency: Number(item.p99_llmLatency ?? 0),
-              p90_ttsLatency: Number(item.p90_ttsLatency ?? 0),
-              p95_ttsLatency: Number(item.p95_ttsLatency ?? 0),
-              p99_ttsLatency: Number(item.p99_ttsLatency ?? 0),
-              p90_overallPipelineLatency: Number(
-                item.p90_overallPipelineLatency ?? 0
-              ),
-              p95_overallPipelineLatency: Number(
-                item.p95_overallPipelineLatency ?? 0
-              ),
-              p99_overallPipelineLatency: Number(
-                item.p99_overallPipelineLatency ?? 0
-              ),
-            })
-          );
+        const transformed: AggregateData[] = (data.aggregates || []).map(
+          (item: AggregateApiItem) => ({
+            customerName: item.customerName,
+            customerApp: item.customerApp,
 
-          allData.push(...transformed);
-        }
+            // Latency
+            langdetectionLatency: item.avg_langdetectionLatency ?? 0,
+            nmtLatency: item.avg_nmtLatency ?? 0,
+            llmLatency: item.avg_llmLatency ?? 0,
+            backnmtLatency: item.avg_backNMTLatency ?? 0,
+            ttsLatency: item.avg_ttsLatency ?? 0,
+            overallPipelineLatency: item.avg_overallPipelineLatency ?? 0,
 
-        setAggregateData(allData);
-      } catch (error) {
-        console.error("Aggregate fetch error:", error);
-        setAggregateData(mockAggregateData);
-      } finally {
-        setLoadingAggregate(false);
+            // Usage
+            nmtUsage: item.avg_nmtUsage ?? 0,
+            llmUsage: item.avg_llmUsage ?? 0,
+            backnmtUsage: item.avg_backNMTUsage ?? 0,
+            ttsUsage: item.avg_ttsUsage ?? 0,
+
+            // P90/P95/P99
+            p90_langdetectionLatency: item.p90_langdetectionLatency ?? 0,
+            p95_langdetectionLatency: item.p95_langdetectionLatency ?? 0,
+            p99_langdetectionLatency: item.p99_langdetectionLatency ?? 0,
+
+            p90_nmtLatency: item.p90_nmtLatency ?? 0,
+            p95_nmtLatency: item.p95_nmtLatency ?? 0,
+            p99_nmtLatency: item.p99_nmtLatency ?? 0,
+
+            p90_llmLatency: item.p90_llmLatency ?? 0,
+            p95_llmLatency: item.p95_llmLatency ?? 0,
+            p99_llmLatency: item.p99_llmLatency ?? 0,
+
+            p90_backnmtLatency: item.p90_backNMTLatency ?? 0,
+            p95_backnmtLatency: item.p95_backNMTLatency ?? 0,
+            p99_backnmtLatency: item.p99_backNMTLatency ?? 0,
+
+            p90_ttsLatency: item.p90_ttsLatency ?? 0,
+            p95_ttsLatency: item.p95_ttsLatency ?? 0,
+            p99_ttsLatency: item.p99_ttsLatency ?? 0,
+
+            p90_overallPipelineLatency: item.p90_overallPipelineLatency ?? 0,
+            p95_overallPipelineLatency: item.p95_overallPipelineLatency ?? 0,
+            p99_overallPipelineLatency: item.p99_overallPipelineLatency ?? 0,
+          })
+        );
+
+        allData.push(...transformed);
       }
-    }
 
-    fetchAggregate();
-  }, []);
+      // ✅ Set API data if available, else fallback to mock
+      setAggregateData(allData.length > 0 ? allData : mockAggregateData);
+    } catch (error) {
+      console.error("Aggregate fetch error:", error);
+      setAggregateData(mockAggregateData);
+    } finally {
+      setLoadingAggregate(false);
+    }
+  }
+
+  fetchAggregate();
+}, []);
+
 
   // ----------------- Fetch Requests Overview -----------------
   useEffect(() => {
