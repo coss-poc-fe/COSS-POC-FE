@@ -8,6 +8,13 @@ import LatencyAdminTable, { LatencyData } from "@/components/LatencyAdminTable";
 import CustomerAggregateTable, {
   AggregateData,
 } from "@/components/CustomerAggregateTable";
+import RequestsOverviewTable, {
+  RequestsData,
+} from "@/components/RequestsOverviewTable";
+import DataProcessedTable, {
+  DataProcessed,
+} from "@/components/DataProcessedTable";
+
 import {
   Dialog,
   DialogContent,
@@ -15,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Raw latency API response type
+// ----------------- Raw latency API response -----------------
 interface ApiResponseItem {
   customername: string;
   customerapp: string;
@@ -31,7 +38,7 @@ interface ApiResponseItem {
   ttsusage: string | null;
 }
 
-// Aggregate API response type
+// ----------------- Aggregate API response -----------------
 interface AggregateApiItem {
   customerName: string;
   customerApp: string;
@@ -92,16 +99,24 @@ const mockAggregateData: AggregateData[] = [
 
 export default function AdminPage() {
   const router = useRouter();
+
+  // ----------------- States -----------------
   const [latencyData, setLatencyData] = useState<LatencyData[]>([]);
   const [aggregateData, setAggregateData] = useState<AggregateData[]>([]);
+  const [requestsData, setRequestsData] = useState<RequestsData | null>(null);
+  const [dataProcessed, setDataProcessed] = useState<DataProcessed | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [loadingAggregate, setLoadingAggregate] = useState(true);
-  const [activeTab, setActiveTab] = useState<"aggregate" | "latency">(
-    "aggregate"
-  );
+
+  const [activeTab, setActiveTab] = useState<
+    "aggregate" | "latency" | "requests" | "dataProcessed"
+  >("aggregate");
+
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // ----------------- Switch User -----------------
   const userOptions = [
     {
       id: "customer1",
@@ -134,6 +149,7 @@ export default function AdminPage() {
     setIsDialogOpen(false);
   };
 
+  // ----------------- Fetch Latency -----------------
   useEffect(() => {
     async function fetchLatency() {
       try {
@@ -151,8 +167,8 @@ export default function AdminPage() {
           llmLatency: parseFloat(item.llmlatency || "0"),
           ttsLatency: parseFloat(item.ttslatency || "0"),
           nmtUsage: item.nmtusage || "0",
-        llmUsage: item.llmusage || "0",
-        ttsUsage: item.ttsusage || "0",
+          llmUsage: item.llmusage || "0",
+          ttsUsage: item.ttsusage || "0",
           overallPipelineLatency: parseFloat(
             item.overallpipelinelatency || "0"
           ),
@@ -170,7 +186,7 @@ export default function AdminPage() {
     fetchLatency();
   }, []);
 
-  // Fetch aggregate data with p90/p95/p99
+  // ----------------- Fetch Aggregate -----------------
   useEffect(() => {
     async function fetchAggregate() {
       try {
@@ -246,6 +262,41 @@ export default function AdminPage() {
     fetchAggregate();
   }, []);
 
+  // ----------------- Fetch Requests Overview -----------------
+  useEffect(() => {
+    async function fetchRequests() {
+      try {
+        const response = await fetch("/metrics/requests");
+        if (!response.ok)
+          throw new Error(`Failed to fetch requests: ${response.status}`);
+        const data: RequestsData = await response.json();
+        setRequestsData(data);
+      } catch (error) {
+        console.error("Requests fetch error:", error);
+      }
+    }
+
+    fetchRequests();
+  }, []);
+
+  // ----------------- Fetch Data Processed -----------------
+  useEffect(() => {
+    async function fetchDataProcessed() {
+      try {
+        const response = await fetch("/metrics/data_processed");
+        if (!response.ok)
+          throw new Error(`Failed to fetch data processed: ${response.status}`);
+        const data: DataProcessed = await response.json();
+        setDataProcessed(data);
+      } catch (error) {
+        console.error("DataProcessed fetch error:", error);
+      }
+    }
+
+    fetchDataProcessed();
+  }, []);
+
+  // ----------------- Render -----------------
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden">
       {/* Mobile Toggle Button */}
@@ -264,14 +315,15 @@ export default function AdminPage() {
         </Button>
       </div>
 
+      {/* Sidebar */}
       <aside
         className={`
-    ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-    lg:translate-x-0 transition-transform duration-300 ease-in-out
-    fixed lg:relative z-40 w-64 lg:w-70 bg-white shadow-md 
-    flex flex-col justify-between p-4 lg:p-7 border-r border-slate-200
-    h-full
-  `}
+          ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0 transition-transform duration-300 ease-in-out
+          fixed lg:relative z-40 w-64 lg:w-70 bg-white shadow-md 
+          flex flex-col justify-between p-4 lg:p-7 border-r border-slate-200
+          h-full
+        `}
       >
         {isMobileSidebarOpen && (
           <div
@@ -280,7 +332,7 @@ export default function AdminPage() {
           />
         )}
 
-        {/* Top Section: Admin Panel */}
+        {/* Top Section */}
         <div>
           <h1 className="text-lg lg:text-xl font-bold mb-6 lg:mb-9 text-slate-800">
             ADMIN PANEL
@@ -317,6 +369,41 @@ export default function AdminPage() {
                 }`}
               >
                 Detailed
+              </button>
+            </nav>
+          </div>
+
+          {/* System Usage Section */}
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-slate-600 mb-2">
+              System Usage
+            </h2>
+            <nav className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  setActiveTab("requests");
+                  setIsMobileSidebarOpen(false);
+                }}
+                className={`text-left p-2 rounded transition-colors ${
+                  activeTab === "requests"
+                    ? "bg-slate-50 text-slate-800 font-semibold"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                Requests Overview
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab("dataProcessed");
+                  setIsMobileSidebarOpen(false);
+                }}
+                className={`text-left p-2 rounded transition-colors ${
+                  activeTab === "dataProcessed"
+                    ? "bg-slate-50 text-slate-800 font-semibold"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                Data Processed
               </button>
             </nav>
           </div>
@@ -365,6 +452,18 @@ export default function AdminPage() {
                   <LatencyAdminTable data={latencyData} />
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === "requests" && requestsData && (
+            <div className="flex-1 flex flex-col min-h-0">
+              <RequestsOverviewTable data={requestsData} />
+            </div>
+          )}
+
+          {activeTab === "dataProcessed" && dataProcessed && (
+            <div className="flex-1 flex flex-col min-h-0">
+              <DataProcessedTable data={dataProcessed} />
             </div>
           )}
         </div>
