@@ -114,7 +114,7 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
         {/* Summary Card */}
         <Card className="shadow-sm">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Total System Requests: {displayData.totalRequests.toLocaleString()}</CardTitle>
+            <CardTitle className="text-lg">Total Service Requests: {displayData.totalRequests.toLocaleString()}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -127,12 +127,12 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
                 <div className="text-slate-600">LLM</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-yellow-600">{displayData.requestsByService.tts.toLocaleString()}</div>
-                <div className="text-slate-600">TTS</div>
-              </div>
-              <div className="text-center">
                 <div className="font-semibold text-orange-600">{displayData.requestsByService.backNmt.toLocaleString()}</div>
                 <div className="text-slate-600">NMT2</div>
+              </div>
+              <div className="text-center">
+                <div className="font-semibold text-yellow-600">{displayData.requestsByService.tts.toLocaleString()}</div>
+                <div className="text-slate-600">TTS</div>
               </div>
             </div>
           </CardContent>
@@ -144,11 +144,11 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
             <TableHeader className="sticky top-0 bg-muted">
               <TableRow>
                 <TableHead>Customer</TableHead>
-                <TableHead>Total</TableHead>
                 <TableHead>NMT1</TableHead>
                 <TableHead>LLM</TableHead>
-                <TableHead>TTS</TableHead>
                 <TableHead>NMT2</TableHead>
+                <TableHead>TTS</TableHead>
+                <TableHead>Total Requests</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -156,11 +156,11 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
                 ([customer, values], idx) => (
                   <TableRow key={customer} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
                     <TableCell className="font-medium">{customer}</TableCell>
-                    <TableCell>{values.totalRequests.toLocaleString()}</TableCell>
                     <TableCell>{values.requestsByService.nmt.toLocaleString()}</TableCell>
                     <TableCell>{values.requestsByService.llm.toLocaleString()}</TableCell>
-                    <TableCell>{values.requestsByService.tts.toLocaleString()}</TableCell>
                     <TableCell>{values.requestsByService.backNmt.toLocaleString()}</TableCell>
+                    <TableCell>{values.requestsByService.tts.toLocaleString()}</TableCell>
+                    <TableCell>{values.totalRequests.toLocaleString()}</TableCell>
                   </TableRow>
                 )
               )}

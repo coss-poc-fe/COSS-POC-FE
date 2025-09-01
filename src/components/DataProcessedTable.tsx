@@ -98,13 +98,14 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
                 <div className="text-slate-600">LLM (tokens)</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-yellow-600">{displayData.totals.tts.toLocaleString()}</div>
-                <div className="text-slate-600">TTS (chars)</div>
-              </div>
-              <div className="text-center">
                 <div className="font-semibold text-orange-600">{displayData.totals.backNmt.toLocaleString()}</div>
                 <div className="text-slate-600">NMT2 (chars)</div>
               </div>
+              <div className="text-center">
+                <div className="font-semibold text-yellow-600">{displayData.totals.tts.toLocaleString()}</div>
+                <div className="text-slate-600">TTS (chars)</div>
+              </div>
+              
             </div>
           </CardContent>
         </Card>
@@ -117,8 +118,8 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
                 <TableHead>Customer</TableHead>
                 <TableHead>NMT1 (chars)</TableHead>
                 <TableHead>LLM (tokens)</TableHead>
-                <TableHead>TTS (chars)</TableHead>
                 <TableHead>NMT2 (chars)</TableHead>
+                <TableHead>TTS (chars)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -127,8 +128,8 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
                   <TableCell className="font-medium">{customer}</TableCell>
                   <TableCell>{values.nmt.toLocaleString()}</TableCell>
                   <TableCell>{values.llm.toLocaleString()}</TableCell>
-                  <TableCell>{values.tts.toLocaleString()}</TableCell>
                   <TableCell>{values.backNmt.toLocaleString()}</TableCell>
+                  <TableCell>{values.tts.toLocaleString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
