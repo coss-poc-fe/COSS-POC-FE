@@ -88,6 +88,7 @@ const formatUsageChartData = (data: AggregateData[]) =>
     name: `${item.customerName}-${item.customerApp}`,
     nmt: parseFloat(item.nmtUsage.toFixed(2)),
     llm: parseFloat(item.llmUsage.toFixed(2)),
+    backnmt: parseFloat(item.backnmtUsage.toFixed(2)),
     tts: parseFloat(item.ttsUsage.toFixed(2)),
   }));
 
@@ -122,9 +123,9 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                   {data.map((row, idx) => {
                     const latencies = [
                       { name: "Lang Detection", p90: row.p90_langdetectionLatency, p95: row.p95_langdetectionLatency, p99: row.p99_langdetectionLatency },
-                      { name: "NMT", p90: row.p90_nmtLatency, p95: row.p95_nmtLatency, p99: row.p99_nmtLatency },
+                      { name: "NMT1", p90: row.p90_nmtLatency, p95: row.p95_nmtLatency, p99: row.p99_nmtLatency },
                       { name: "LLM", p90: row.p90_llmLatency, p95: row.p95_llmLatency, p99: row.p99_llmLatency },
-                      { name: "NMT (Back Translation)", p90: row.p90_backnmtLatency, p95: row.p95_backnmtLatency, p99: row.p99_backnmtLatency }, // ✅ Added here
+                      { name: "NMT2", p90: row.p90_backnmtLatency, p95: row.p95_backnmtLatency, p99: row.p99_backnmtLatency }, // ✅ Added here
                       { name: "TTS", p90: row.p90_ttsLatency, p95: row.p95_ttsLatency, p99: row.p99_ttsLatency },
                       { name: "Overall", p90: row.p90_overallPipelineLatency, p95: row.p95_overallPipelineLatency, p99: row.p99_overallPipelineLatency },
                     ];
@@ -176,9 +177,9 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                   <TableRow>
                     <TableHead>Customer Name</TableHead>
                     <TableHead>App</TableHead>
-                    <TableHead>NMT (Characters)</TableHead>
+                    <TableHead>NMT1 (Characters)</TableHead>
                     <TableHead>LLM (Tokens)</TableHead>
-                    <TableHead>NMT (Back Translation)</TableHead> 
+                    <TableHead>NMT2 (Characters)</TableHead>
                     <TableHead>TTS (Characters)</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -205,8 +206,9 @@ const CustomerAggregateTable: React.FC<CustomerAggregateProps> = ({ data }) => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="nmt" fill="#8884d8" name="NMT Usage" />
+                  <Bar dataKey="nmt" fill="#8884d8" name="NMT1 Usage" />
                   <Bar dataKey="llm" fill="#82ca9d" name="LLM Usage" />
+                  <Bar dataKey="backnmt" fill="#ff7f50" name="NMT2 Usage" />
                   <Bar dataKey="tts" fill="#ffc658" name="TTS Usage" />
                 </BarChart>
               </ResponsiveContainer>

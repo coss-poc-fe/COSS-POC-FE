@@ -35,10 +35,12 @@ export interface LatencyData {
   langdetectionLatency: number | string | null;
   nmtLatency: number | string | null;
   llmLatency: number | string | null;
+  backnmtLatency: number | string | null;
   ttsLatency: number | string | null;
   overallPipelineLatency: number | string | null;
   nmtUsage: number | string | null;
   llmUsage: number | string | null;
+  backnmtUsage: number | string | null;
   ttsUsage: number | string | null;
   timestamp: string;
 }
@@ -193,6 +195,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                   <TableHead>Lang Detection (s)</TableHead>
                   <TableHead>NMT (s)</TableHead>
                   <TableHead>LLM (s)</TableHead>
+                  <TableHead>Back NMT (s)</TableHead>
                   <TableHead>TTS (s)</TableHead>
                   <TableHead>Overall (s)</TableHead>
                 </TableRow>
@@ -211,6 +214,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                     <TableCell>{msToSec(row.langdetectionLatency)}</TableCell>
                     <TableCell>{msToSec(row.nmtLatency)}</TableCell>
                     <TableCell>{msToSec(row.llmLatency)}</TableCell>
+                    <TableCell>{msToSec(row.backnmtLatency)}</TableCell>
                     <TableCell>{msToSec(row.ttsLatency)}</TableCell>
                     <TableCell>{msToSec(row.overallPipelineLatency)}</TableCell>
                   </TableRow>
@@ -270,6 +274,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                   <TableHead>Customer Name</TableHead>
                   <TableHead>NMT (Characters)</TableHead>
                   <TableHead>LLM (Tokens)</TableHead>
+                  <TableHead>Back NMT (Characters)</TableHead>
                   <TableHead>TTS (Characters)</TableHead>
                 </TableRow>
               </TableHeader>
@@ -286,6 +291,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                     <TableCell>{row.customerName || "-"}</TableCell>
                     <TableCell>{formatValue(row.nmtUsage)}</TableCell>
                     <TableCell>{formatValue(row.llmUsage)}</TableCell>
+                    <TableCell>{formatValue(row.backnmtUsage)}</TableCell>
                     <TableCell>{formatValue(row.ttsUsage)}</TableCell>
                   </TableRow>
                 ))}

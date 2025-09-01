@@ -32,13 +32,16 @@ interface ApiResponseItem {
   langdetectionlatency: string;
   nmtlatency: string;
   llmlatency: string;
+  backnmtlatency: string;  
   ttslatency: string;
   overallpipelinelatency: string;
   timestamp: string;
   nmtusage: string | null;
   llmusage: string | null;
+  backnmtusage: string | null; 
   ttsusage: string | null;
 }
+
 
 // ----------------- Aggregate API response -----------------
 interface AggregateApiItem {
@@ -193,15 +196,16 @@ export default function AdminPage() {
           langdetectionLatency: parseFloat(item.langdetectionlatency || "0"),
           nmtLatency: parseFloat(item.nmtlatency || "0"),
           llmLatency: parseFloat(item.llmlatency || "0"),
+          backnmtLatency: parseFloat(item.backnmtlatency || "0"), // <-- added
           ttsLatency: parseFloat(item.ttslatency || "0"),
           nmtUsage: item.nmtusage || "0",
           llmUsage: item.llmusage || "0",
+          backnmtUsage: item.backnmtusage || "0", // <-- added
           ttsUsage: item.ttsusage || "0",
-          overallPipelineLatency: parseFloat(
-            item.overallpipelinelatency || "0"
-          ),
+          overallPipelineLatency: parseFloat(item.overallpipelinelatency || "0"),
           timestamp: item.timestamp,
         }));
+
 
         setLatencyData(formattedData);
       } catch (error) {
