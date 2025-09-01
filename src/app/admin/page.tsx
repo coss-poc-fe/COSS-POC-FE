@@ -9,9 +9,11 @@ import CustomerAggregateTable, {
   AggregateData,
 } from "@/components/CustomerAggregateTable";
 import RequestsOverviewTable, {
+  ApiRequestsData,
   RequestsData,
 } from "@/components/RequestsOverviewTable";
 import DataProcessedTable, {
+  ApiDataProcessed,
   DataProcessed,
 } from "@/components/DataProcessedTable";
 
@@ -45,7 +47,7 @@ interface AggregateApiItem {
   avg_langdetectionLatency: number | null;
   avg_nmtLatency: number | null;
   avg_llmLatency: number | null;
-  avg_backNMTLatency: number | null; 
+  avg_backNMTLatency: number | null;
   avg_ttsLatency: number | null;
   avg_overallPipelineLatency: number | null;
   avg_nmtUsage: number | null;
@@ -61,7 +63,7 @@ interface AggregateApiItem {
   p90_llmLatency: number | null;
   p95_llmLatency: number | null;
   p99_llmLatency: number | null;
-  p90_backNMTLatency: number | null;   
+  p90_backNMTLatency: number | null;
   p95_backNMTLatency: number | null;
   p99_backNMTLatency: number | null;
   p90_ttsLatency: number | null;
@@ -118,7 +120,6 @@ const mockAggregateData: AggregateData[] = [
   },
 ];
 
-
 export default function AdminPage() {
   const router = useRouter();
 
@@ -126,7 +127,9 @@ export default function AdminPage() {
   const [latencyData, setLatencyData] = useState<LatencyData[]>([]);
   const [aggregateData, setAggregateData] = useState<AggregateData[]>([]);
   const [requestsData, setRequestsData] = useState<RequestsData | null>(null);
-  const [dataProcessed, setDataProcessed] = useState<DataProcessed | null>(null);
+  const [dataProcessed, setDataProcessed] = useState<DataProcessed | null>(
+    null
+  );
 
   const [loading, setLoading] = useState(true);
   const [loadingAggregate, setLoadingAggregate] = useState(true);
@@ -137,6 +140,9 @@ export default function AdminPage() {
 
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [loadingDataProcessed, setLoadingDataProcessed] = useState(true);
 
   // ----------------- Switch User -----------------
   const userOptions = [
@@ -210,113 +216,169 @@ export default function AdminPage() {
 
   // ----------------- Fetch Aggregate -----------------
   // ----------------- Fetch Aggregate -----------------
-useEffect(() => {
-  async function fetchAggregate() {
-    try {
-      const customers = ["cust1", "cust2"];
-      const allData: AggregateData[] = [];
+  useEffect(() => {
+    async function fetchAggregate() {
+      try {
+        const customers = ["cust1", "cust2"];
+        const allData: AggregateData[] = [];
 
-      for (const name of customers) {
-        const response = await fetch("/api/customer-aggregate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ customerName: name }),
-        });
+        for (const name of customers) {
+          const response = await fetch("/api/customer-aggregate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ customerName: name }),
+          });
 
-        if (!response.ok) throw new Error(`Failed for ${name}`);
-        const data = await response.json();
+          if (!response.ok) throw new Error(`Failed for ${name}`);
+          const data = await response.json();
 
-        const transformed: AggregateData[] = (data.aggregates || []).map(
-          (item: AggregateApiItem) => ({
-            customerName: item.customerName,
-            customerApp: item.customerApp,
+          const transformed: AggregateData[] = (data.aggregates || []).map(
+            (item: AggregateApiItem) => ({
+              customerName: item.customerName,
+              customerApp: item.customerApp,
 
-            // Latency
-            langdetectionLatency: item.avg_langdetectionLatency ?? 0,
-            nmtLatency: item.avg_nmtLatency ?? 0,
-            llmLatency: item.avg_llmLatency ?? 0,
-            backnmtLatency: item.avg_backNMTLatency ?? 0,
-            ttsLatency: item.avg_ttsLatency ?? 0,
-            overallPipelineLatency: item.avg_overallPipelineLatency ?? 0,
+              // Latency
+              langdetectionLatency: item.avg_langdetectionLatency ?? 0,
+              nmtLatency: item.avg_nmtLatency ?? 0,
+              llmLatency: item.avg_llmLatency ?? 0,
+              backnmtLatency: item.avg_backNMTLatency ?? 0,
+              ttsLatency: item.avg_ttsLatency ?? 0,
+              overallPipelineLatency: item.avg_overallPipelineLatency ?? 0,
 
-            // Usage
-            nmtUsage: item.avg_nmtUsage ?? 0,
-            llmUsage: item.avg_llmUsage ?? 0,
-            backnmtUsage: item.avg_backNMTUsage ?? 0,
-            ttsUsage: item.avg_ttsUsage ?? 0,
+              // Usage
+              nmtUsage: item.avg_nmtUsage ?? 0,
+              llmUsage: item.avg_llmUsage ?? 0,
+              backnmtUsage: item.avg_backNMTUsage ?? 0,
+              ttsUsage: item.avg_ttsUsage ?? 0,
 
-            // P90/P95/P99
-            p90_langdetectionLatency: item.p90_langdetectionLatency ?? 0,
-            p95_langdetectionLatency: item.p95_langdetectionLatency ?? 0,
-            p99_langdetectionLatency: item.p99_langdetectionLatency ?? 0,
+              // P90/P95/P99
+              p90_langdetectionLatency: item.p90_langdetectionLatency ?? 0,
+              p95_langdetectionLatency: item.p95_langdetectionLatency ?? 0,
+              p99_langdetectionLatency: item.p99_langdetectionLatency ?? 0,
 
-            p90_nmtLatency: item.p90_nmtLatency ?? 0,
-            p95_nmtLatency: item.p95_nmtLatency ?? 0,
-            p99_nmtLatency: item.p99_nmtLatency ?? 0,
+              p90_nmtLatency: item.p90_nmtLatency ?? 0,
+              p95_nmtLatency: item.p95_nmtLatency ?? 0,
+              p99_nmtLatency: item.p99_nmtLatency ?? 0,
 
-            p90_llmLatency: item.p90_llmLatency ?? 0,
-            p95_llmLatency: item.p95_llmLatency ?? 0,
-            p99_llmLatency: item.p99_llmLatency ?? 0,
+              p90_llmLatency: item.p90_llmLatency ?? 0,
+              p95_llmLatency: item.p95_llmLatency ?? 0,
+              p99_llmLatency: item.p99_llmLatency ?? 0,
 
-            p90_backnmtLatency: item.p90_backNMTLatency ?? 0,
-            p95_backnmtLatency: item.p95_backNMTLatency ?? 0,
-            p99_backnmtLatency: item.p99_backNMTLatency ?? 0,
+              p90_backnmtLatency: item.p90_backNMTLatency ?? 0,
+              p95_backnmtLatency: item.p95_backNMTLatency ?? 0,
+              p99_backnmtLatency: item.p99_backNMTLatency ?? 0,
 
-            p90_ttsLatency: item.p90_ttsLatency ?? 0,
-            p95_ttsLatency: item.p95_ttsLatency ?? 0,
-            p99_ttsLatency: item.p99_ttsLatency ?? 0,
+              p90_ttsLatency: item.p90_ttsLatency ?? 0,
+              p95_ttsLatency: item.p95_ttsLatency ?? 0,
+              p99_ttsLatency: item.p99_ttsLatency ?? 0,
 
-            p90_overallPipelineLatency: item.p90_overallPipelineLatency ?? 0,
-            p95_overallPipelineLatency: item.p95_overallPipelineLatency ?? 0,
-            p99_overallPipelineLatency: item.p99_overallPipelineLatency ?? 0,
-          })
-        );
+              p90_overallPipelineLatency: item.p90_overallPipelineLatency ?? 0,
+              p95_overallPipelineLatency: item.p95_overallPipelineLatency ?? 0,
+              p99_overallPipelineLatency: item.p99_overallPipelineLatency ?? 0,
+            })
+          );
 
-        allData.push(...transformed);
+          allData.push(...transformed);
+        }
+
+        // ✅ Set API data if available, else fallback to mock
+        setAggregateData(allData.length > 0 ? allData : mockAggregateData);
+      } catch (error) {
+        console.error("Aggregate fetch error:", error);
+        setAggregateData(mockAggregateData);
+      } finally {
+        setLoadingAggregate(false);
       }
-
-      // ✅ Set API data if available, else fallback to mock
-      setAggregateData(allData.length > 0 ? allData : mockAggregateData);
-    } catch (error) {
-      console.error("Aggregate fetch error:", error);
-      setAggregateData(mockAggregateData);
-    } finally {
-      setLoadingAggregate(false);
     }
-  }
 
-  fetchAggregate();
-}, []);
-
+    fetchAggregate();
+  }, []);
 
   // ----------------- Fetch Requests Overview -----------------
+  // Update Fetch Requests Overview
   useEffect(() => {
     async function fetchRequests() {
       try {
         const response = await fetch("/metrics/requests");
         if (!response.ok)
           throw new Error(`Failed to fetch requests: ${response.status}`);
-        const data: RequestsData = await response.json();
-        setRequestsData(data);
+        const apiData: ApiRequestsData = await response.json();
+
+        // Transform API data to component format
+        const transformedData: RequestsData = {
+          totalRequests: apiData.total_requests,
+          requestsByService: {
+            nmt: apiData.requests_by_service.NMT,
+            llm: apiData.requests_by_service.LLM,
+            tts: apiData.requests_by_service.TTS,
+            backNmt: apiData.requests_by_service.backNMT,
+          },
+          requestsByCustomer: Object.fromEntries(
+            Object.entries(apiData.requests_by_customer).map(
+              ([customer, data]) => [
+                customer,
+                {
+                  totalRequests: data.total,
+                  requestsByService: {
+                    nmt: data.by_service.NMT,
+                    llm: data.by_service.LLM,
+                    tts: data.by_service.TTS,
+                    backNmt: data.by_service.backNMT,
+                  },
+                },
+              ]
+            )
+          ),
+        };
+
+        setRequestsData(transformedData);
       } catch (error) {
         console.error("Requests fetch error:", error);
+        // Will use mock data from component
+      } finally {
+        setLoadingRequests(false);
       }
     }
 
     fetchRequests();
   }, []);
 
-  // ----------------- Fetch Data Processed -----------------
+  // Update Fetch Data Processed
   useEffect(() => {
     async function fetchDataProcessed() {
       try {
         const response = await fetch("/metrics/data_processed");
         if (!response.ok)
           throw new Error(`Failed to fetch data processed: ${response.status}`);
-        const data: DataProcessed = await response.json();
-        setDataProcessed(data);
+        const apiData: ApiDataProcessed = await response.json();
+
+        // Transform API data to component format
+        const transformedData: DataProcessed = {
+          totals: {
+            nmt: apiData.totals.NMT_chars,
+            llm: apiData.totals.LLM_tokens,
+            tts: apiData.totals.TTS_chars,
+            backNmt: apiData.totals.backNMT_chars,
+          },
+          byCustomer: Object.fromEntries(
+            Object.entries(apiData.byCustomer).map(([customer, data]) => [
+              customer,
+              {
+                nmt: data.NMT_chars,
+                llm: data.LLM_tokens,
+                tts: data.TTS_chars,
+                backNmt: data.backNMT_chars,
+              },
+            ])
+          ),
+        };
+
+        setDataProcessed(transformedData);
       } catch (error) {
         console.error("DataProcessed fetch error:", error);
+        // Will use mock data from component
+      } finally {
+        setLoadingDataProcessed(false);
       }
     }
 
@@ -482,15 +544,35 @@ useEffect(() => {
             </div>
           )}
 
-          {activeTab === "requests" && requestsData && (
+          {activeTab === "requests" && (
             <div className="flex-1 flex flex-col min-h-0">
-              <RequestsOverviewTable data={requestsData} />
+              {loadingRequests ? (
+                <div className="flex-1 bg-white rounded-lg lg:rounded-3xl shadow-sm border border-slate-200 p-2 sm:p-4 overflow-auto">
+                  <h2 className="text-xl font-semibold mb-4">
+                    Requests Overview
+                  </h2>
+                  <p className="text-center text-gray-500">
+                    Loading requests data...
+                  </p>
+                </div>
+              ) : (
+                <RequestsOverviewTable data={requestsData} />
+              )}
             </div>
           )}
 
-          {activeTab === "dataProcessed" && dataProcessed && (
+          {activeTab === "dataProcessed" && (
             <div className="flex-1 flex flex-col min-h-0">
-              <DataProcessedTable data={dataProcessed} />
+              {loadingDataProcessed ? (
+                <div className="flex-1 bg-white rounded-lg lg:rounded-3xl shadow-sm border border-slate-200 p-2 sm:p-4 overflow-auto">
+                  <h2 className="text-xl font-semibold mb-4">Data Processed</h2>
+                  <p className="text-center text-gray-500">
+                    Loading data processed metrics...
+                  </p>
+                </div>
+              ) : (
+                <DataProcessedTable data={dataProcessed} />
+              )}
             </div>
           )}
         </div>
