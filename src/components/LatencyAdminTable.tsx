@@ -106,6 +106,7 @@ const normalizeData = (data: LatencyData[]): LatencyData[] =>
       item.langdetectionLatency === "none" ? "-" : item.langdetectionLatency,
     nmtLatency: item.nmtLatency === "none" ? "-" : item.nmtLatency,
     llmLatency: item.llmLatency === "none" ? "-" : item.llmLatency,
+    backnmtLatency: item.backnmtLatency === "none" ? "-" : item.backnmtLatency,
     ttsLatency: item.ttsLatency === "none" ? "-" : item.ttsLatency,
     overallPipelineLatency:
       item.overallPipelineLatency === "none"
@@ -113,6 +114,7 @@ const normalizeData = (data: LatencyData[]): LatencyData[] =>
         : item.overallPipelineLatency,
     nmtUsage: item.nmtUsage === "none" ? "-" : item.nmtUsage,
     llmUsage: item.llmUsage === "none" ? "-" : item.llmUsage,
+    backnmtUsage: item.backnmtUsage === "none" ? "-" : item.backnmtUsage,
     ttsUsage: item.ttsUsage === "none" ? "-" : item.ttsUsage,
   }));
 
@@ -126,6 +128,7 @@ const formatLatencyChartData = (data: LatencyData[]) =>
         : 0,
     nmt: typeof item.nmtLatency === "number" ? item.nmtLatency / 1000 : 0,
     llm: typeof item.llmLatency === "number" ? item.llmLatency / 1000 : 0,
+    backnmt: typeof item.backnmtLatency === "number" ? item.backnmtLatency / 1000 : 0,
     tts: typeof item.ttsLatency === "number" ? item.ttsLatency / 1000 : 0,
     overall:
       typeof item.overallPipelineLatency === "number"
@@ -138,6 +141,7 @@ const formatUsageChartData = (data: LatencyData[]) =>
     name: item.requestId.substring(0, 8),
     nmt: Number(item.nmtUsage) || 0,
     llm: Number(item.llmUsage) || 0,
+    backnmt: Number(item.backnmtUsage) || 0,
     tts: Number(item.ttsUsage) || 0,
   }));
 
@@ -193,9 +197,9 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                   <TableHead>Timestamp</TableHead>
                   <TableHead>Customer Name</TableHead>
                   <TableHead>Lang Detection (s)</TableHead>
-                  <TableHead>NMT (s)</TableHead>
+                  <TableHead>NMT1 (s)</TableHead>
                   <TableHead>LLM (s)</TableHead>
-                  <TableHead>Back NMT (s)</TableHead>
+                  <TableHead>NMT2 (s)</TableHead>
                   <TableHead>TTS (s)</TableHead>
                   <TableHead>Overall (s)</TableHead>
                 </TableRow>
@@ -236,8 +240,9 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                   fill="#8884d8"
                   name="Lang Detection"
                 />
-                <Bar dataKey="nmt" fill="#82ca9d" name="NMT" />
+                <Bar dataKey="nmt" fill="#82ca9d" name="NMT1" />
                 <Bar dataKey="llm" fill="#ffc658" name="LLM" />
+                <Bar dataKey="backnmt" fill="#8A2BE2" name="NMT2" />
                 <Bar dataKey="tts" fill="#ff8042" name="TTS" />
                 <Bar dataKey="overall" fill="#0088FE" name="Overall" />
               </BarChart>
@@ -272,9 +277,9 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                   <TableHead>Request ID</TableHead>
                   <TableHead>Timestamp</TableHead>
                   <TableHead>Customer Name</TableHead>
-                  <TableHead>NMT (Characters)</TableHead>
+                  <TableHead>NMT1 (Characters)</TableHead>
                   <TableHead>LLM (Tokens)</TableHead>
-                  <TableHead>Back NMT (Characters)</TableHead>
+                  <TableHead>NMT2 (Characters)</TableHead>
                   <TableHead>TTS (Characters)</TableHead>
                 </TableRow>
               </TableHeader>
@@ -307,8 +312,9 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="nmt" fill="#8884d8" name="NMT Usage" />
+                <Bar dataKey="nmt" fill="#8884d8" name="NMT1 Usage" />
                 <Bar dataKey="llm" fill="#82ca9d" name="LLM Usage" />
+                <Bar dataKey="backnmt" fill="#8A2BE2" name="NMT2 Usage" />
                 <Bar dataKey="tts" fill="#ffc658" name="TTS Usage" />
               </BarChart>
             </ResponsiveContainer>
