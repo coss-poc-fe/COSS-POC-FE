@@ -69,49 +69,60 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
   // Use mock data if no data provided
   const displayData = data || mockData;
 
-  const chartData = Object.entries(displayData.byCustomer).map(([customer, values]) => ({
-    name: customer,
-    nmt: values.nmt,
-    llm: values.llm,
-    tts: values.tts,
-    backNmt: values.backNmt,
-  }));
+  const chartData = Object.entries(displayData.byCustomer).map(
+    ([customer, values]) => ({
+      name: customer,
+      nmt: values.nmt,
+      llm: values.llm,
+      tts: values.tts,
+      backNmt: values.backNmt,
+    })
+  );
 
   return (
-    <div className="flex-1 bg-white rounded-lg lg:rounded-3xl shadow-sm border border-slate-200 p-2 sm:p-4 overflow-auto">
+    <div className="flex-1 bg-white rounded-lg lg:rounded-3xl shadow-sm border border-slate-200 p-2 sm:p-4">
       <h2 className="text-xl font-semibold mb-4">Data Processed</h2>
-      
-      <div className="flex flex-col gap-6 h-full">
+
+      <div className="flex flex-col gap-6">
         {/* Summary Card */}
         <Card className="shadow-sm">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Total Data Processed (chars/tokens)</CardTitle>
+            <CardTitle className="text-lg">
+              Total Data Processed (chars/tokens)
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div className="text-center">
-                <div className="font-semibold text-blue-600">{displayData.totals.nmt.toLocaleString()}</div>
+                <div className="font-semibold text-blue-600">
+                  {displayData.totals.nmt.toLocaleString()}
+                </div>
                 <div className="text-slate-600">NMT1 (chars)</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-green-600">{displayData.totals.llm.toLocaleString()}</div>
+                <div className="font-semibold text-green-600">
+                  {displayData.totals.llm.toLocaleString()}
+                </div>
                 <div className="text-slate-600">LLM (tokens)</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-orange-600">{displayData.totals.backNmt.toLocaleString()}</div>
+                <div className="font-semibold text-orange-600">
+                  {displayData.totals.backNmt.toLocaleString()}
+                </div>
                 <div className="text-slate-600">NMT2 (chars)</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-yellow-600">{displayData.totals.tts.toLocaleString()}</div>
+                <div className="font-semibold text-yellow-600">
+                  {displayData.totals.tts.toLocaleString()}
+                </div>
                 <div className="text-slate-600">TTS (chars)</div>
               </div>
-              
             </div>
           </CardContent>
         </Card>
 
         {/* Table */}
-        <div className="flex-1 overflow-auto border rounded-md">
+        <div className="overflow-auto border rounded-md max-h-[220px]">
           <Table>
             <TableHeader className="sticky top-0 bg-muted">
               <TableRow>
@@ -123,21 +134,26 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Object.entries(displayData.byCustomer).map(([customer, values], idx) => (
-                <TableRow key={customer} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
-                  <TableCell className="font-medium">{customer}</TableCell>
-                  <TableCell>{values.nmt.toLocaleString()}</TableCell>
-                  <TableCell>{values.llm.toLocaleString()}</TableCell>
-                  <TableCell>{values.backNmt.toLocaleString()}</TableCell>
-                  <TableCell>{values.tts.toLocaleString()}</TableCell>
-                </TableRow>
-              ))}
+              {Object.entries(displayData.byCustomer).map(
+                ([customer, values], idx) => (
+                  <TableRow
+                    key={customer}
+                    className={idx % 2 === 0 ? "bg-muted/30" : ""}
+                  >
+                    <TableCell className="font-medium">{customer}</TableCell>
+                    <TableCell>{values.nmt.toLocaleString()}</TableCell>
+                    <TableCell>{values.llm.toLocaleString()}</TableCell>
+                    <TableCell>{values.backNmt.toLocaleString()}</TableCell>
+                    <TableCell>{values.tts.toLocaleString()}</TableCell>
+                  </TableRow>
+                )
+              )}
             </TableBody>
           </Table>
         </div>
 
         {/* Chart */}
-        <div className="h-[300px] w-full">
+        <div className="h-[500px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />

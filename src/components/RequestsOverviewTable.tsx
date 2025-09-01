@@ -107,86 +107,89 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
   }));
 
   return (
-    <div className="flex-1 bg-white rounded-lg lg:rounded-3xl shadow-sm border border-slate-200 p-2 sm:p-4 overflow-auto">
-      <h2 className="text-xl font-semibold mb-4">Requests Overview</h2>
-      
-      <div className="flex flex-col gap-6 h-full">
-        {/* Summary Card */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Total Service Requests: {displayData.totalRequests.toLocaleString()}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div className="text-center">
-                <div className="font-semibold text-blue-600">{displayData.requestsByService.nmt.toLocaleString()}</div>
-                <div className="text-slate-600">NMT1</div>
-              </div>
-              <div className="text-center">
-                <div className="font-semibold text-green-600">{displayData.requestsByService.llm.toLocaleString()}</div>
-                <div className="text-slate-600">LLM</div>
-              </div>
-              <div className="text-center">
-                <div className="font-semibold text-orange-600">{displayData.requestsByService.backNmt.toLocaleString()}</div>
-                <div className="text-slate-600">NMT2</div>
-              </div>
-              <div className="text-center">
-                <div className="font-semibold text-yellow-600">{displayData.requestsByService.tts.toLocaleString()}</div>
-                <div className="text-slate-600">TTS</div>
-              </div>
+  <div className="flex-1 bg-white rounded-lg lg:rounded-3xl shadow-sm border border-slate-200 p-2 sm:p-4">
+    <h2 className="text-xl font-semibold mb-4">Requests Overview</h2>
+    
+    <div className="flex flex-col gap-6">
+      {/* Summary Card */}
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">
+            Total Service Requests: {displayData.totalRequests.toLocaleString()}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="text-center">
+              <div className="font-semibold text-blue-600">{displayData.requestsByService.nmt.toLocaleString()}</div>
+              <div className="text-slate-600">NMT1</div>
             </div>
-          </CardContent>
-        </Card>
+            <div className="text-center">
+              <div className="font-semibold text-green-600">{displayData.requestsByService.llm.toLocaleString()}</div>
+              <div className="text-slate-600">LLM</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-orange-600">{displayData.requestsByService.backNmt.toLocaleString()}</div>
+              <div className="text-slate-600">NMT2</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-yellow-600">{displayData.requestsByService.tts.toLocaleString()}</div>
+              <div className="text-slate-600">TTS</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Table */}
-        <div className="flex-1 overflow-auto border rounded-md">
-          <Table>
-            <TableHeader className="sticky top-0 bg-muted">
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>NMT1</TableHead>
-                <TableHead>LLM</TableHead>
-                <TableHead>NMT2</TableHead>
-                <TableHead>TTS</TableHead>
-                <TableHead>Total Requests</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Object.entries(displayData.requestsByCustomer).map(
-                ([customer, values], idx) => (
-                  <TableRow key={customer} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
-                    <TableCell className="font-medium">{customer}</TableCell>
-                    <TableCell>{values.requestsByService.nmt.toLocaleString()}</TableCell>
-                    <TableCell>{values.requestsByService.llm.toLocaleString()}</TableCell>
-                    <TableCell>{values.requestsByService.backNmt.toLocaleString()}</TableCell>
-                    <TableCell>{values.requestsByService.tts.toLocaleString()}</TableCell>
-                    <TableCell>{values.totalRequests.toLocaleString()}</TableCell>
-                  </TableRow>
-                )
-              )}
-            </TableBody>
-          </Table>
-        </div>
+      {/* Table */}
+      <div className="overflow-auto border rounded-md max-h-[220px]">
+        <Table>
+          <TableHeader className="sticky top-0 bg-muted">
+            <TableRow>
+              <TableHead>Customer</TableHead>
+              <TableHead>NMT1</TableHead>
+              <TableHead>LLM</TableHead>
+              <TableHead>NMT2</TableHead>
+              <TableHead>TTS</TableHead>
+              <TableHead>Total Requests</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Object.entries(displayData.requestsByCustomer).map(
+              ([customer, values], idx) => (
+                <TableRow key={customer} className={idx % 2 === 0 ? "bg-muted/30" : ""}>
+                  <TableCell className="font-medium">{customer}</TableCell>
+                  <TableCell>{values.requestsByService.nmt.toLocaleString()}</TableCell>
+                  <TableCell>{values.requestsByService.llm.toLocaleString()}</TableCell>
+                  <TableCell>{values.requestsByService.backNmt.toLocaleString()}</TableCell>
+                  <TableCell>{values.requestsByService.tts.toLocaleString()}</TableCell>
+                  <TableCell>{values.totalRequests.toLocaleString()}</TableCell>
+                </TableRow>
+              )
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-        {/* Chart */}
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="nmt" fill="#3b82f6" name="NMT1" />
-              <Bar dataKey="llm" fill="#10b981" name="LLM" />
-              <Bar dataKey="tts" fill="#f59e0b" name="TTS" />
-              <Bar dataKey="backNmt" fill="#ef4444" name="NMT2" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      {/* Chart */}
+      <div className="h-[500px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="nmt" fill="#3b82f6" name="NMT1" />
+            <Bar dataKey="llm" fill="#10b981" name="LLM" />
+            <Bar dataKey="tts" fill="#f59e0b" name="TTS" />
+            <Bar dataKey="backNmt" fill="#ef4444" name="NMT2" />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default RequestsOverviewTable;
