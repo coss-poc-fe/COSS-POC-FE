@@ -10,14 +10,17 @@ interface ProcessedData {
   requestId: string;
   nmt: number;
   llm: number;
+  backnmt: number;         
   tts?: number;
   total: number;
   nmtUsage: number;
   llmUsage: number;
+  backnmtUsage: number;      
   ttsUsage?: number;
   timestamp: string;
   langDetection: number;
 }
+
 
 interface CustomerLatencyDashboardProps {
   customerType: 'cust1' | 'cust2';
@@ -56,8 +59,8 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
   const [useSample, setUseSample] = useState(false);
 
   const sampleData: ProcessedData[] = useMemo(() => [
-    { requestId: 'REQ001', nmt: 0.12, llm: 1.25, tts: 0.45, total: 1.82, nmtUsage: 2, llmUsage: 500, ttsUsage: 10, timestamp: '2025-08-26T04:46:12.083990+00:00', langDetection: 0 },
-    { requestId: 'REQ002', nmt: 0.15, llm: 1.1, tts: 0.4, total: 1.65, nmtUsage: 3, llmUsage: 450, ttsUsage: 8, timestamp: '2025-08-26T04:47:15.083990+00:00', langDetection: 0 }
+    { requestId: 'REQ001', nmt: 0.12, llm: 1.25, backnmt: 0.45, tts: 0.45, total: 1.82, nmtUsage: 2, llmUsage: 500, backnmtUsage: 10, ttsUsage: 10, timestamp: '2025-08-26T04:46:12.083990+00:00', langDetection: 0 },
+    { requestId: 'REQ002', nmt: 0.15, llm: 1.1, backnmt: 0.4, tts: 0.4, total: 1.65, nmtUsage: 3, llmUsage: 450, backnmtUsage: 8, ttsUsage: 8, timestamp: '2025-08-26T04:47:15.083990+00:00', langDetection: 0 }
   ], []);
 
   useEffect(() => {
@@ -72,13 +75,16 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
           langDetection: parseFloat(row.langdetectionlatency.replace('ms','')) / 1000,
           nmt: parseFloat(row.nmtlatency.replace('ms', '')) / 1000,
           llm: parseFloat(row.llmlatency.replace('ms', '')) / 1000,
+          backnmt: parseFloat(row.backnmtlatency.replace('ms', '')) / 1000,   // ✅ new
           tts: row.ttslatency ? parseFloat(row.ttslatency.replace('ms', '')) / 1000 : undefined,
           total: parseFloat(row.overallpipelinelatency.replace('ms', '')) / 1000,
           nmtUsage: parseInt(row.nmtusage || '0', 10),
           llmUsage: parseInt(row.llmusage || '0', 10),
+          backnmtUsage: parseInt(row.backnmtusage || '0', 10),                 // ✅ new
           ttsUsage: row.ttsusage ? parseInt(row.ttsusage, 10) : undefined,
           timestamp: row.timestamp
         }));
+
 
         setData(processed);
         setUseSample(false);
@@ -123,11 +129,13 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
                   <TableHead className="text-xs">Request ID</TableHead>
                   <TableHead className="text-xs hidden sm:table-cell">Timestamp</TableHead>
                   <TableHead className="text-xs">Lang Detection (s)</TableHead>
-                  <TableHead className="text-xs">NMT (s)</TableHead>               
+                  <TableHead className="text-xs">NMT1 (s)</TableHead>               
                   <TableHead className="text-xs">LLM (s)</TableHead>
+                  <TableHead className="text-xs">NMT2 (s)</TableHead>  
                   {customerType === 'cust1' && <TableHead className="text-xs">TTS (s)</TableHead>}
-                  <TableHead className="text-xs">NMT (character)</TableHead>
+                  <TableHead className="text-xs">NMT1 (character)</TableHead>
                   <TableHead className="text-xs">LLM (token)</TableHead>
+                  <TableHead className="text-xs">NMT2 (character)</TableHead>  
                   {customerType === 'cust1' && <TableHead className="text-xs">TTS (character)</TableHead>}
                   <TableHead className="text-xs">Total (s)</TableHead>
                 </TableRow>
@@ -140,9 +148,11 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
                     <TableCell>{displayValue(row.langDetection)}</TableCell>
                     <TableCell>{displayValue(row.nmt)}</TableCell>
                     <TableCell>{displayValue(row.llm)}</TableCell>
+                    <TableCell>{displayValue(row.backnmt)}</TableCell> 
                     {customerType === 'cust1' && <TableCell>{displayValue(row.tts)}</TableCell>}
                     <TableCell>{displayValue(row.nmtUsage)}</TableCell>
                     <TableCell>{displayValue(row.llmUsage)}</TableCell>
+                    <TableCell>{displayValue(row.backnmtUsage)}</TableCell>
                     {customerType === 'cust1' && <TableCell>{displayValue(row.ttsUsage)}</TableCell>}
                     <TableCell className="font-semibold">{displayValue(row.total)}</TableCell>
                   </TableRow>
@@ -173,8 +183,9 @@ export default function CustomerLatencyDashboard({ customerType }: CustomerLaten
                   formatter={(value: number) => value === 0 || value === undefined ? "-" : `${value.toFixed(3)}s`}
                   contentStyle={{ fontSize: '12px' }} 
                 />
-                <Bar dataKey="nmt" stackId="a" fill="#8884d8" name="NMT" />
+                <Bar dataKey="nmt" stackId="a" fill="#8884d8" name="NMT1" />
                 <Bar dataKey="llm" stackId="a" fill="#82ca9d" name="LLM" />
+                <Bar dataKey="backnmt" stackId="a" fill="#ff7f50" name="NMT2" /> 
                 {customerType === 'cust1' && <Bar dataKey="tts" stackId="a" fill="#ffc658" name="TTS" />}
               </BarChart>
             </ResponsiveContainer>
