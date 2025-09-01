@@ -1,11 +1,23 @@
 "use client";
 import * as React from "react";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
 
 // Backend API response structure
@@ -50,7 +62,7 @@ interface RequestsOverviewProps {
   data: RequestsData | null;
 }
 
-// Mock data
+// Mock data for fallback
 const mockRequestsData: RequestsData = {
   totalRequests: 12500,
   requestsByService: {
@@ -81,46 +93,18 @@ const mockRequestsData: RequestsData = {
   },
 };
 
-// Transform backend data to component format
-const transformApiData = (apiData: ApiRequestsData): RequestsData => ({
-  totalRequests: apiData.total_requests,
-  requestsByService: {
-    nmt: apiData.requests_by_service.NMT,
-    llm: apiData.requests_by_service.LLM,
-    tts: apiData.requests_by_service.TTS,
-    backNmt: apiData.requests_by_service.backNMT,
-  },
-  requestsByCustomer: Object.fromEntries(
-    Object.entries(apiData.requests_by_customer).map(([customer, data]) => [
-      customer,
-      {
-        totalRequests: data.total,
-        requestsByService: {
-          nmt: data.by_service.NMT,
-          llm: data.by_service.LLM,
-          tts: data.by_service.TTS,
-          backNmt: data.by_service.backNMT,
-        },
-      },
-    ])
-  ),
-});
-
 const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
   // Use mock data if no data provided
   const displayData = data || mockRequestsData;
 
-  // Chart data
-  const chartData = Object.entries(displayData.requestsByCustomer || {}).map(
-    ([customer, values]) => ({
-      name: customer,
-      total: values.totalRequests,
-      nmt: values.requestsByService.nmt,
-      llm: values.requestsByService.llm,
-      tts: values.requestsByService.tts,
-      backNmt: values.requestsByService.backNmt,
-    })
-  );
+  const chartData = Object.entries(displayData.requestsByCustomer).map(([customer, values]) => ({
+    name: customer,
+    total: values.totalRequests,
+    nmt: values.requestsByService.nmt,
+    llm: values.requestsByService.llm,
+    tts: values.requestsByService.tts,
+    backNmt: values.requestsByService.backNmt,
+  }));
 
   return (
     <div className="flex-1 bg-white rounded-lg lg:rounded-3xl shadow-sm border border-slate-200 p-2 sm:p-4 overflow-auto">
@@ -136,7 +120,7 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div className="text-center">
                 <div className="font-semibold text-blue-600">{displayData.requestsByService.nmt.toLocaleString()}</div>
-                <div className="text-slate-600">NMT</div>
+                <div className="text-slate-600">NMT1</div>
               </div>
               <div className="text-center">
                 <div className="font-semibold text-green-600">{displayData.requestsByService.llm.toLocaleString()}</div>
@@ -148,7 +132,7 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
               </div>
               <div className="text-center">
                 <div className="font-semibold text-orange-600">{displayData.requestsByService.backNmt.toLocaleString()}</div>
-                <div className="text-slate-600">BackNMT</div>
+                <div className="text-slate-600">NMT2</div>
               </div>
             </div>
           </CardContent>
@@ -161,10 +145,10 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
               <TableRow>
                 <TableHead>Customer</TableHead>
                 <TableHead>Total</TableHead>
-                <TableHead>NMT</TableHead>
+                <TableHead>NMT1</TableHead>
                 <TableHead>LLM</TableHead>
                 <TableHead>TTS</TableHead>
-                <TableHead>BackNMT</TableHead>
+                <TableHead>NMT2</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -193,10 +177,10 @@ const RequestsOverviewTable: React.FC<RequestsOverviewProps> = ({ data }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="nmt" fill="#8884d8" name="NMT" />
-              <Bar dataKey="llm" fill="#82ca9d" name="LLM" />
-              <Bar dataKey="tts" fill="#ffc658" name="TTS" />
-              <Bar dataKey="backNmt" fill="#ff8042" name="BackNMT" />
+              <Bar dataKey="nmt" fill="#3b82f6" name="NMT1" />
+              <Bar dataKey="llm" fill="#10b981" name="LLM" />
+              <Bar dataKey="tts" fill="#f59e0b" name="TTS" />
+              <Bar dataKey="backNmt" fill="#ef4444" name="NMT2" />
             </BarChart>
           </ResponsiveContainer>
         </div>

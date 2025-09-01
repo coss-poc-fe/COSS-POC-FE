@@ -51,7 +51,7 @@ interface DataProcessedProps {
   data: DataProcessed | null;
 }
 
-// --- Mock Data ---
+// --- Mock Data for fallback ---
 const mockData: DataProcessed = {
   totals: {
     nmt: 1500,
@@ -64,27 +64,6 @@ const mockData: DataProcessed = {
     cust2: { nmt: 700, llm: 600, tts: 400, backNmt: 200 },
   },
 };
-
-// Transform backend data to component format
-const transformApiDataProcessed = (apiData: ApiDataProcessed): DataProcessed => ({
-  totals: {
-    nmt: apiData.totals.NMT_chars,
-    llm: apiData.totals.LLM_tokens,
-    tts: apiData.totals.TTS_chars,
-    backNmt: apiData.totals.backNMT_chars,
-  },
-  byCustomer: Object.fromEntries(
-    Object.entries(apiData.byCustomer).map(([customer, data]) => [
-      customer,
-      {
-        nmt: data.NMT_chars,
-        llm: data.LLM_tokens,
-        tts: data.TTS_chars,
-        backNmt: data.backNMT_chars,
-      },
-    ])
-  ),
-});
 
 const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
   // Use mock data if no data provided
@@ -112,7 +91,7 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div className="text-center">
                 <div className="font-semibold text-blue-600">{displayData.totals.nmt.toLocaleString()}</div>
-                <div className="text-slate-600">NMT (chars)</div>
+                <div className="text-slate-600">NMT1 (chars)</div>
               </div>
               <div className="text-center">
                 <div className="font-semibold text-green-600">{displayData.totals.llm.toLocaleString()}</div>
@@ -124,7 +103,7 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
               </div>
               <div className="text-center">
                 <div className="font-semibold text-orange-600">{displayData.totals.backNmt.toLocaleString()}</div>
-                <div className="text-slate-600">BackNMT (chars)</div>
+                <div className="text-slate-600">NMT2 (chars)</div>
               </div>
             </div>
           </CardContent>
@@ -136,10 +115,10 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
             <TableHeader className="sticky top-0 bg-muted">
               <TableRow>
                 <TableHead>Customer</TableHead>
-                <TableHead>NMT (chars)</TableHead>
+                <TableHead>NMT1 (chars)</TableHead>
                 <TableHead>LLM (tokens)</TableHead>
                 <TableHead>TTS (chars)</TableHead>
-                <TableHead>BackNMT (chars)</TableHead>
+                <TableHead>NMT2 (chars)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -165,10 +144,10 @@ const DataProcessedTable: React.FC<DataProcessedProps> = ({ data }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="nmt" fill="#8884d8" name="NMT" />
-              <Bar dataKey="llm" fill="#82ca9d" name="LLM" />
-              <Bar dataKey="tts" fill="#ffc658" name="TTS" />
-              <Bar dataKey="backNmt" fill="#ff8042" name="BackNMT" />
+              <Bar dataKey="nmt" fill="#3b82f6" name="NMT1" />
+              <Bar dataKey="llm" fill="#10b981" name="LLM" />
+              <Bar dataKey="tts" fill="#f59e0b" name="TTS" />
+              <Bar dataKey="backNmt" fill="#ef4444" name="NMT2" />
             </BarChart>
           </ResponsiveContainer>
         </div>

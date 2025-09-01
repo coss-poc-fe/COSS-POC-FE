@@ -146,6 +146,9 @@ export default function AdminPage() {
 
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [loadingDataProcessed, setLoadingDataProcessed] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [requestsError, setRequestsError] = useState<string | null>(null);
+  const [dataProcessedError, setDataProcessedError] = useState<string | null>(null);
 
   // ----------------- Switch User -----------------
   const userOptions = [
@@ -299,95 +302,100 @@ export default function AdminPage() {
   }, []);
 
   // ----------------- Fetch Requests Overview -----------------
-  // Update Fetch Requests Overview
   useEffect(() => {
-    async function fetchRequests() {
-      try {
-        const response = await fetch("/metrics/requests");
-        if (!response.ok)
-          throw new Error(`Failed to fetch requests: ${response.status}`);
-        const apiData: ApiRequestsData = await response.json();
+  async function fetchRequests() {
+    try {
+      // Fixed URL - add /api prefix
+      const response = await fetch("/api/metrics/requests");
+      if (!response.ok)
+        throw new Error(`Failed to fetch requests: ${response.status}`);
+      const apiData: ApiRequestsData = await response.json();
 
-        // Transform API data to component format
-        const transformedData: RequestsData = {
-          totalRequests: apiData.total_requests,
-          requestsByService: {
-            nmt: apiData.requests_by_service.NMT,
-            llm: apiData.requests_by_service.LLM,
-            tts: apiData.requests_by_service.TTS,
-            backNmt: apiData.requests_by_service.backNMT,
-          },
-          requestsByCustomer: Object.fromEntries(
-            Object.entries(apiData.requests_by_customer).map(
-              ([customer, data]) => [
-                customer,
-                {
-                  totalRequests: data.total,
-                  requestsByService: {
-                    nmt: data.by_service.NMT,
-                    llm: data.by_service.LLM,
-                    tts: data.by_service.TTS,
-                    backNmt: data.by_service.backNMT,
-                  },
-                },
-              ]
-            )
-          ),
-        };
-
-        setRequestsData(transformedData);
-      } catch (error) {
-        console.error("Requests fetch error:", error);
-        // Will use mock data from component
-      } finally {
-        setLoadingRequests(false);
-      }
-    }
-
-    fetchRequests();
-  }, []);
-
-  // Update Fetch Data Processed
-  useEffect(() => {
-    async function fetchDataProcessed() {
-      try {
-        const response = await fetch("/metrics/data_processed");
-        if (!response.ok)
-          throw new Error(`Failed to fetch data processed: ${response.status}`);
-        const apiData: ApiDataProcessed = await response.json();
-
-        // Transform API data to component format
-        const transformedData: DataProcessed = {
-          totals: {
-            nmt: apiData.totals.NMT_chars,
-            llm: apiData.totals.LLM_tokens,
-            tts: apiData.totals.TTS_chars,
-            backNmt: apiData.totals.backNMT_chars,
-          },
-          byCustomer: Object.fromEntries(
-            Object.entries(apiData.byCustomer).map(([customer, data]) => [
+      // Transform API data to component format
+      const transformedData: RequestsData = {
+        totalRequests: apiData.total_requests,
+        requestsByService: {
+          nmt: apiData.requests_by_service.NMT,
+          llm: apiData.requests_by_service.LLM,
+          tts: apiData.requests_by_service.TTS,
+          backNmt: apiData.requests_by_service.backNMT,
+        },
+        requestsByCustomer: Object.fromEntries(
+          Object.entries(apiData.requests_by_customer).map(
+            ([customer, data]) => [
               customer,
               {
-                nmt: data.NMT_chars,
-                llm: data.LLM_tokens,
-                tts: data.TTS_chars,
-                backNmt: data.backNMT_chars,
+                totalRequests: data.total,
+                requestsByService: {
+                  nmt: data.by_service.NMT,
+                  llm: data.by_service.LLM,
+                  tts: data.by_service.TTS,
+                  backNmt: data.by_service.backNMT,
+                },
               },
-            ])
-          ),
-        };
+            ]
+          )
+        ),
+      };
 
-        setDataProcessed(transformedData);
-      } catch (error) {
-        console.error("DataProcessed fetch error:", error);
-        // Will use mock data from component
-      } finally {
-        setLoadingDataProcessed(false);
-      }
+      setRequestsData(transformedData);
+      setRequestsError(null);
+    } catch (error) {
+      console.error("Requests fetch error:", error);
+      setRequestsError(`Failed to fetch requests: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // Will use mock data from component
+    } finally {
+      setLoadingRequests(false);
     }
+  }
 
-    fetchDataProcessed();
-  }, []);
+  fetchRequests();
+}, []);
+
+// Update Fetch Data Processed
+useEffect(() => {
+  async function fetchDataProcessed() {
+    try {
+      // Fixed URL - add /api prefix
+      const response = await fetch("/api/metrics/data_processed");
+      if (!response.ok)
+        throw new Error(`Failed to fetch data processed: ${response.status}`);
+      const apiData: ApiDataProcessed = await response.json();
+
+      // Transform API data to component format
+      const transformedData: DataProcessed = {
+        totals: {
+          nmt: apiData.totals.NMT_chars,
+          llm: apiData.totals.LLM_tokens,
+          tts: apiData.totals.TTS_chars,
+          backNmt: apiData.totals.backNMT_chars,
+        },
+        byCustomer: Object.fromEntries(
+          Object.entries(apiData.byCustomer).map(([customer, data]) => [
+            customer,
+            {
+              nmt: data.NMT_chars,
+              llm: data.LLM_tokens,
+              tts: data.TTS_chars,
+              backNmt: data.backNMT_chars,
+            },
+          ])
+        ),
+      };
+
+      setDataProcessed(transformedData);
+      setDataProcessedError(null);
+    } catch (error) {
+      console.error("DataProcessed fetch error:", error);
+      setDataProcessedError(`Failed to fetch data processed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // Will use mock data from component
+    } finally {
+      setLoadingDataProcessed(false);
+    }
+  }
+
+  fetchDataProcessed();
+}, []);
 
   // ----------------- Render -----------------
   return (
