@@ -227,7 +227,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
             </Table>
           </div>
 
-          <div className="h-[350px] w-full">
+          <div className="h-[500px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={latencyChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -304,7 +304,7 @@ export default function LatencyAdminTable({ data }: LatencyAdminTableProps) {
             </Table>
           </div>
 
-          <div className="h-[350px] w-full">
+          <div className="h-[500px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={usageChartData}>
                 <CartesianGrid strokeDasharray="3 3" />
